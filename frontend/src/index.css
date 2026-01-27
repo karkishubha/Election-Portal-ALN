@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+/* Nepal Election Portal 2082 - Civic Design System
+   Neutral, credible, accessible, mobile-first */
+
+@layer base {
+  :root {
+    /* Core Palette - Neutral Civic */
+    --background: 210 20% 98%;
+    --foreground: 220 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 15%;
+
+    /* Primary - Deep Navy (Trust/Authority) */
+    --primary: 220 45% 20%;
+    --primary-foreground: 210 40% 98%;
+
+    /* Secondary - Soft Gray */
+    --secondary: 210 15% 93%;
+    --secondary-foreground: 220 25% 25%;
+
+    /* Muted */
+    --muted: 210 15% 95%;
+    --muted-foreground: 215 15% 45%;
+
+    /* Accent - Civic Teal */
+    --accent: 175 45% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Utility Colors */
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 220 45% 20%;
+
+    --radius: 0.5rem;
+
+    /* Custom Portal Colors */
+    --civic-navy: 220 45% 20%;
+    --civic-navy-light: 220 35% 35%;
+    --civic-teal: 175 45% 40%;
+    --civic-teal-light: 175 40% 55%;
+    --civic-gold: 42 85% 55%;
+    --civic-gray: 210 15% 50%;
+    --civic-light: 210 20% 97%;
+
+    /* Countdown specific */
+    --countdown-bg: 220 45% 18%;
+    --countdown-number: 0 0% 100%;
+    --countdown-label: 210 20% 80%;
+
+    /* Section colors */
+    --section-voter: 210 55% 50%;
+    --section-integrity: 160 50% 45%;
+    --section-monitoring: 35 80% 55%;
+    --section-parties: 350 60% 55%;
+
+    /* Sidebar */
+    --sidebar-background: 220 45% 18%;
+    --sidebar-foreground: 210 20% 95%;
+    --sidebar-primary: 175 45% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 40% 25%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 220 35% 28%;
+    --sidebar-ring: 175 45% 50%;
+  }
+
+  .dark {
+    --background: 220 25% 10%;
+    --foreground: 210 20% 95%;
+
+    --card: 220 25% 12%;
+    --card-foreground: 210 20% 95%;
+
+    --popover: 220 25% 12%;
+    --popover-foreground: 210 20% 95%;
+
+    --primary: 210 40% 90%;
+    --primary-foreground: 220 45% 15%;
+
+    --secondary: 220 25% 18%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 220 25% 18%;
+    --muted-foreground: 215 15% 60%;
+
+    --accent: 175 45% 50%;
+    --accent-foreground: 220 45% 10%;
+
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 25% 22%;
+    --input: 220 25% 22%;
+    --ring: 175 45% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  /* Civic Container */
+  .civic-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Section Cards */
+  .section-card {
+    @apply bg-card rounded-lg border border-border p-6 transition-all duration-300;
+    @apply hover:shadow-lg hover:border-accent/30;
+  }
+
+  /* Resource Item */
+  .resource-item {
+    @apply flex items-start gap-4 p-4 bg-card rounded-lg border border-border;
+    @apply transition-all duration-200 hover:shadow-md hover:border-accent/40;
+  }
+
+  /* Countdown Box */
+  .countdown-box {
+    @apply flex flex-col items-center justify-center;
+    @apply bg-[hsl(var(--countdown-bg))] rounded-xl p-4 sm:p-6 min-w-[80px] sm:min-w-[100px];
+  }
+
+  .countdown-number {
+    @apply text-3xl sm:text-5xl lg:text-6xl font-bold text-white;
+    font-family: 'Inter', sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .countdown-label {
+    @apply text-xs sm:text-sm uppercase tracking-wider text-[hsl(var(--countdown-label))] mt-1;
+  }
+
+  /* Quick Access Cards */
+  .quick-card {
+    @apply relative overflow-hidden rounded-xl p-6 transition-all duration-300;
+    @apply hover:scale-[1.02] hover:shadow-xl cursor-pointer;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  .quick-card h3,
+  .quick-card p {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .quick-card-voter {
+    background: linear-gradient(135deg, hsl(210 55% 50%) 0%, hsl(210 55% 40%) 100%);
+  }
+
+  .quick-card-integrity {
+    background: linear-gradient(135deg, hsl(160 50% 45%) 0%, hsl(160 50% 35%) 100%);
+  }
+
+  .quick-card-monitoring {
+    background: linear-gradient(135deg, hsl(35 80% 55%) 0%, hsl(35 80% 45%) 100%);
+  }
+
+  .quick-card-parties {
+    background: linear-gradient(135deg, hsl(350 60% 55%) 0%, hsl(350 60% 45%) 100%);
+  }
+
+  /* Admin Panel Styles */
+  .admin-card {
+    @apply bg-card border border-border rounded-lg p-6 shadow-sm;
+  }
+
+  .admin-stat {
+    @apply flex items-center justify-between p-4 bg-muted/50 rounded-lg;
+  }
+}
+
+@layer utilities {
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.5s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Stagger children animations */
+  .stagger-children > * {
+    opacity: 0;
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+
+  .stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
+  .stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
+  .stagger-children > *:nth-child(3) { animation-delay: 0.3s; }
+  .stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
+  .stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
+}

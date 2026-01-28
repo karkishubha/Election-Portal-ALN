@@ -48,17 +48,20 @@ const AdminUser = sequelize.define('AdminUser', {
   timestamps: true,
   underscored: true,
   hooks: {
-    // Hash password before saving
+    // Hash password before saving - only if it's not already hashed
     beforeCreate: async (user) => {
-      if (user.hashedPassword) {
+      if (user.hashedPassword && !user.hashedPassword.startsWith('$2a$') && !user.hashedPassword.startsWith('$2b$')) {
         const salt = await bcrypt.genSalt(12);
         user.hashedPassword = await bcrypt.hash(user.hashedPassword, salt);
       }
     },
     beforeUpdate: async (user) => {
       if (user.changed('hashedPassword')) {
-        const salt = await bcrypt.genSalt(12);
-        user.hashedPassword = await bcrypt.hash(user.hashedPassword, salt);
+        const password = user.hashedPassword;
+        if (password && !password.startsWith('$2a$') && !password.startsWith('$2b$')) {
+          const salt = await bcrypt.genSalt(12);
+          user.hashedPassword = await bcrypt.hash(password, salt);
+        }
       }
     },
   },

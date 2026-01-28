@@ -27,18 +27,25 @@ const login = async (req, res) => {
     const admin = await AdminUser.findOne({ where: { email } });
 
     if (!admin) {
+      console.log(`[LOGIN] Admin not found for email: ${email}`);
       return errorResponse(res, 'Invalid credentials', 401);
     }
 
+    console.log(`[LOGIN] Admin found: ${admin.email}, Active: ${admin.isActive}`);
+
     // Check if account is active
     if (!admin.isActive) {
+      console.log(`[LOGIN] Account inactive for: ${email}`);
       return errorResponse(res, 'Account is deactivated', 401);
     }
 
     // Verify password
+    console.log(`[LOGIN] Comparing password for ${email}...`);
     const isMatch = await admin.comparePassword(password);
+    console.log(`[LOGIN] Password match result: ${isMatch}`);
 
     if (!isMatch) {
+      console.log(`[LOGIN] Invalid password for ${email}`);
       return errorResponse(res, 'Invalid credentials', 401);
     }
 
@@ -48,6 +55,7 @@ const login = async (req, res) => {
     // Generate token
     const token = generateToken(admin.id);
 
+    console.log(`[LOGIN] Login successful for ${email}`);
     return successResponse(res, {
       admin: {
         id: admin.id,

@@ -5,10 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
   { label: "Home", path: "/" },
-  { label: "Voter Education", path: "/voter-education" },
-  { label: "Election Integrity", path: "/election-integrity" },
-  { label: "Election Monitoring", path: "/election-monitoring" },
-  { label: "Political Parties", path: "/political-parties" },
+  { label: "Election 2026", path: "/election-2026" },
   { label: "About Us", path: "/about" },
   { label: "Contact", path: "/contact" },
 ];

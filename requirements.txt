@@ -1,0 +1,16 @@
+# Nepal Election Portal - System Requirements (Windows)
+# Install the following before running the project
+
+# Runtime
+node>=18.0.0
+npm>=9.0.0
+
+# Database
+mysql>=8.0
+
+# Tools
+git>=2.30
+
+# Optional developer tools
+# vscode>=1.80
+# xampp (for MySQL GUI)

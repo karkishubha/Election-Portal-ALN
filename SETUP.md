@@ -24,8 +24,8 @@ Complete setup instructions for running this project on a new device.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nepal-election-portal.git
-cd nepal-election-portal
+git clone https://github.com/karkishubha/Election-Portal-ALN.git
+cd Election-Portal-ALN
 ```
 
 ### 2. Setup MySQL Database
@@ -39,6 +39,12 @@ CREATE DATABASE nepal_election_portal;
 
 -- Verify
 SHOW DATABASES;
+```
+
+Optionally, you can run the provided schema and seed script:
+
+```bash
+mysql -u root -p nepal_election_portal < backend/setup-database.sql
 ```
 
 ### 3. Backend Setup
@@ -75,7 +81,7 @@ ADMIN_EMAIL=admin@votenepal.com
 ADMIN_PASSWORD=Admin@2082
 
 # Frontend URL (for CORS)
-FRONTEND_URL=http://localhost:8080
+FRONTEND_URL=http://localhost:5173
 ```
 
 ```bash
@@ -111,7 +117,7 @@ VITE_API_URL=http://localhost:5000/api
 npm run dev
 ```
 
-Frontend will run at: `http://localhost:8080`
+Frontend will run at: `http://localhost:5173`
 
 ## Quick Start Commands
 
@@ -130,11 +136,11 @@ npm install
 npm run dev
 ```
 
-## Default Admin Credentials
+## Admin Account
 
-- **Email:** admin@votenepal.com
-- **Password:** Admin@2082
-- **Admin URL:** http://localhost:8080/admin
+- Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in backend `.env`.
+- Seed with: `npm run seed:admin` (run in `backend`).
+- Change password after first login.
 
 ## Dependencies Summary
 

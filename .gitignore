@@ -1,4 +1,32 @@
+# Root
+.DS_Store
+Thumbs.db
+
+# Environment files
+backend/.env
+frontend/.env
+
 # Dependencies
+backend/node_modules/
+frontend/node_modules/
+
+# Builds and logs
+frontend/dist/
+backend/logs/
+coverage/
+
+# Uploads and generated assets
+backend/uploads/
+uploads/
+
+# Editor/OS
+.vscode/
+.idea/
+
+# Misc
+bun.lockb
+*.log
+*.tmp# Dependencies
 node_modules/
 .pnp/
 .pnp.js

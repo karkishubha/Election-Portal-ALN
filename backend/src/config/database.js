@@ -40,7 +40,7 @@ const connectDB = async () => {
     
     // Sync models in development (use migrations in production)
     if (process.env.NODE_ENV !== 'production') {
-      await sequelize.sync({ alter: true });
+      await sequelize.sync();
       console.log('✅ Database tables synchronized');
     }
     

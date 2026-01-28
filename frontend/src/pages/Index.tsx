@@ -43,14 +43,14 @@ const Index = () => {
               </h1>
               
               <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-xl">
-                A neutral, non-partisan election information portal by Accountability Lab Nepal. 
-                Access voter education resources, election integrity materials, and monitoring reports.
+                A neutral, non-partisan election information portal. 
+                Access comprehensive resources to make informed voting decisions in the 2026 election.
               </p>
 
               <div className="flex flex-wrap gap-4">
                 <Button size="lg" asChild>
-                  <Link to="/voter-education">
-                    Explore Resources
+                  <Link to="/election-2026">
+                    Explore Election 2026
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>

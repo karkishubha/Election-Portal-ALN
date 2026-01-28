@@ -77,7 +77,7 @@ Portal/
 Create a new MySQL database:
 
 ```sql
-CREATE DATABASE vote_nepal_hub;
+CREATE DATABASE nepal_election_portal;
 ```
 
 ### 2. Backend Setup
@@ -92,8 +92,8 @@ npm install
 # Configure environment variables
 # Edit .env file with your MySQL credentials
 
-# Seed admin user (creates tables automatically)
-npm run seed
+# Seed admin user (uses credentials from .env)
+npm run seed:admin
 
 # Start development server
 npm run dev
@@ -126,7 +126,7 @@ NODE_ENV=development
 # MySQL Configuration
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=vote_nepal_hub
+DB_NAME=nepal_election_portal
 DB_USER=root
 DB_PASSWORD=your_mysql_password
 
@@ -173,13 +173,13 @@ VITE_API_URL=http://localhost:5000/api
 | GET/POST | /api/admin/parties | Manage political parties |
 | POST | /api/upload/pdf | Upload PDF file |
 
-## Default Admin Credentials
+## Admin Account
 
-After running `npm run seed`:
-- **Email**: admin@votenepal.com
-- **Password**: Admin@2082
+Configure in backend `.env`:
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
 
-> ⚠️ **Important**: Change these credentials in production!
+Seed with `npm run seed:admin` and change the password after first login.
 
 ## Database Models
 
@@ -205,7 +205,7 @@ After running `npm run seed`:
 ```bash
 npm run dev      # Start with nodemon
 npm start        # Start production server
-npm run seed     # Seed admin user
+npm run seed:admin     # Seed admin user
 ```
 
 ### Frontend

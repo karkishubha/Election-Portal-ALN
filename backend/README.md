@@ -13,7 +13,7 @@
 backend/
 ├── src/
 │   ├── config/
-│   │   └── database.js       # MongoDB connection
+│   │   └── database.js       # MySQL (Sequelize) connection
 │   ├── controllers/          # Business logic
 │   │   ├── authController.js
 │   │   ├── uploadController.js
@@ -24,12 +24,12 @@ backend/
 │   ├── middleware/
 │   │   ├── auth.js           # JWT authentication
 │   │   └── errorHandler.js   # Global error handling
-│   ├── models/               # Mongoose schemas
-│   │   ├── AdminUser.js
-│   │   ├── VoterEducation.js
-│   │   ├── ElectionIntegrity.js
-│   │   ├── Newsletter.js
-│   │   └── PoliticalParty.js
+│   ├── models/               # Sequelize models
+│   │   ├── AdminUser.sequelize.js
+│   │   ├── VoterEducation.sequelize.js
+│   │   ├── ElectionIntegrity.sequelize.js
+│   │   ├── Newsletter.sequelize.js
+│   │   └── PoliticalParty.sequelize.js
 │   ├── routes/               # API routes
 │   ├── scripts/
 │   │   └── seedAdmin.js      # Create initial admin
@@ -62,7 +62,7 @@ npm install
 cp .env.example .env
 
 # Edit with your values
-# - MONGODB_URI: Your MongoDB connection string
+# - DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD: MySQL details
 # - JWT_SECRET: A secure random string
 # - ADMIN_EMAIL/PASSWORD: Initial admin credentials
 ```

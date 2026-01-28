@@ -17,7 +17,9 @@ coverage/
 
 # Uploads and generated assets
 backend/uploads/
+!backend/uploads/.gitkeep
 uploads/
+!uploads/.gitkeep
 
 # Editor/OS
 .vscode/

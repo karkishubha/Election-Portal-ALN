@@ -41,10 +41,11 @@ CREATE DATABASE nepal_election_portal;
 SHOW DATABASES;
 ```
 
-Optionally, you can run the provided schema and seed script:
+Optionally, you can run the provided schema and seed scripts:
 
 ```bash
 mysql -u root -p nepal_election_portal < backend/setup-database.sql
+cd backend && npm run db:setup
 ```
 
 ### 3. Backend Setup

@@ -64,7 +64,7 @@ const AdminVoterEducation = () => {
       let pdfUrl = "";
 
       if (selectedFile) {
-        const uploadResult = await uploadApi.uploadPdf(selectedFile);
+        const uploadResult = await uploadApi.uploadPdf(selectedFile, 'voter-education');
         pdfUrl = uploadResult.data.url;
       }
 

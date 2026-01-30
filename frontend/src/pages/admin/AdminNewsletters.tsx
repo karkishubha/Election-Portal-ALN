@@ -62,24 +62,41 @@ const AdminNewsletters = () => {
     }
   };
 
+  // Convert file to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remove the data URL prefix to store just the base64 data
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const handleAddNewsletter = async () => {
     if (!newNewsletter.title || !newNewsletter.summary) return;
 
     try {
       setUploading(true);
-      let pdfUrl = "";
+      let pdfData = "";
+      let pdfFileName = "";
 
       if (selectedFile) {
-        const uploadResult = await uploadApi.uploadPdf(selectedFile);
-        pdfUrl = uploadResult.data.url;
+        pdfData = await fileToBase64(selectedFile);
+        pdfFileName = selectedFile.name;
       }
 
       await createMutation.mutateAsync({
         title: newNewsletter.title,
         summary: newNewsletter.summary,
         source: newNewsletter.source,
-        publishedDate: newNewsletter.publishedDate || new Date().toISOString(),
-        pdfUrl: pdfUrl || "/placeholder.pdf",
+        publishedDate: newNewsletter.publishedDate || new Date().toISOString().split('T')[0],
+        pdfData: pdfData || undefined,
+        pdfFileName: pdfFileName || undefined,
       });
 
       setNewNewsletter({ title: "", summary: "", source: "ALN_DRN", publishedDate: "" });

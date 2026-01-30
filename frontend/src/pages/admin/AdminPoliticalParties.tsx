@@ -67,12 +67,12 @@ const AdminPoliticalParties = () => {
       let manifestoUrl = "";
 
       if (selectedLogo) {
-        const uploadResult = await uploadApi.uploadPdf(selectedLogo);
+        const uploadResult = await uploadApi.uploadPdf(selectedLogo, 'party-logos');
         logoUrl = uploadResult.data.url;
       }
 
       if (selectedManifesto) {
-        const uploadResult = await uploadApi.uploadPdf(selectedManifesto);
+        const uploadResult = await uploadApi.uploadPdf(selectedManifesto, 'party-manifestos');
         manifestoUrl = uploadResult.data.url;
       }
 

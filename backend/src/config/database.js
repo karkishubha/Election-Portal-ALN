@@ -40,7 +40,8 @@ const connectDB = async () => {
     
     // Sync models in development (use migrations in production)
     if (process.env.NODE_ENV !== 'production') {
-      await sequelize.sync();
+      // Use alter: true to add new columns automatically
+      await sequelize.sync({ alter: true });
       console.log('✅ Database tables synchronized');
     }
     

@@ -1,6 +1,7 @@
 import { FileText, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { getFileUrl } from "@/lib/api";
 
 interface ResourceCardProps {
   title: string;
@@ -43,7 +44,7 @@ const ResourceCard = ({
       <div className="flex-shrink-0 flex items-center gap-2">
         {downloadUrl && (
           <Button size="sm" variant="outline" asChild>
-            <a href={downloadUrl} download>
+            <a href={getFileUrl(downloadUrl)} target="_blank" rel="noopener noreferrer">
               <Download className="w-4 h-4 mr-1" />
               Download
             </a>

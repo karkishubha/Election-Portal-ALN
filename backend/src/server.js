@@ -48,8 +48,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // ============ BODY PARSING ============
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Increased limit for base64 PDF uploads (50mb to handle large PDFs)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // ============ LOGGING ============
 if (process.env.NODE_ENV !== 'production') {

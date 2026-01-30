@@ -31,8 +31,18 @@ const Newsletter = sequelize.define('Newsletter', {
   },
   pdfUrl: {
     type: DataTypes.STRING(500),
-    allowNull: false,
+    allowNull: true,
     field: 'pdf_url',
+  },
+  pdfData: {
+    type: DataTypes.TEXT('long'),
+    allowNull: true,
+    field: 'pdf_data',
+  },
+  pdfFileName: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    field: 'pdf_file_name',
   },
   source: {
     type: DataTypes.ENUM('ALN', 'DRN', 'ALN_DRN', 'other'),

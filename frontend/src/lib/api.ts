@@ -6,6 +6,14 @@
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
+// Helper to get full URL for uploaded files
+export const getFileUrl = (path: string): string => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${BACKEND_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+};
 
 // Token management
 const getToken = (): string | null => {
@@ -147,7 +155,9 @@ export interface Newsletter {
   id: number;
   title: string;
   summary: string;
-  pdfUrl: string;
+  pdfUrl?: string;
+  pdfData?: string;
+  pdfFileName?: string;
   source: 'ALN' | 'DRN' | 'ALN_DRN' | 'other';
   publishedDate: string;
   language: 'en' | 'ne' | 'other';
@@ -447,7 +457,7 @@ export const partiesApi = {
 
 // ============ FILE UPLOAD API ============
 export const uploadApi = {
-  uploadPdf: async (file: File, type: string): Promise<ApiResponse<{ url: string; filename: string }>> => {
+  uploadPdf: async (file: File, type: string = 'general'): Promise<ApiResponse<{ url: string; filename: string }>> => {
     const token = getToken();
     const formData = new FormData();
     formData.append('file', file);

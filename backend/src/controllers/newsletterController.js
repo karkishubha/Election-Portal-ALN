@@ -31,6 +31,7 @@ const getAll = async (req, res) => {
 
     const { count, rows } = await Newsletter.findAndCountAll({
       where,
+      attributes: { exclude: ['pdfData'] }, // Exclude large PDF data from list
       order: [['publishedDate', 'DESC']],
       offset: skip,
       limit,
@@ -65,6 +66,7 @@ const adminGetAll = async (req, res) => {
 
     const { count, rows } = await Newsletter.findAndCountAll({
       where,
+      attributes: { exclude: ['pdfData'] }, // Exclude large PDF data from list
       order: [['publishedDate', 'DESC']],
       offset: skip,
       limit,
@@ -83,7 +85,7 @@ const adminGetAll = async (req, res) => {
 };
 
 /**
- * @desc    Get single newsletter
+ * @desc    Get single newsletter with PDF data
  * @route   GET /api/newsletters/:id
  * @access  Public
  */
@@ -114,12 +116,14 @@ const getById = async (req, res) => {
  */
 const create = async (req, res) => {
   try {
-    const { title, summary, pdfUrl, source, publishedDate, language, published } = req.body;
+    const { title, summary, pdfUrl, pdfData, pdfFileName, source, publishedDate, language, published } = req.body;
 
     const newsletter = await Newsletter.create({
       title,
       summary,
       pdfUrl,
+      pdfData,
+      pdfFileName,
       source: source || 'ALN_DRN',
       publishedDate,
       language: language || 'ne',
@@ -127,7 +131,11 @@ const create = async (req, res) => {
       createdBy: req.admin.id,
     });
 
-    return successResponse(res, newsletter, 'Newsletter created successfully', 201);
+    // Don't return pdfData in response (too large)
+    const responseData = newsletter.toJSON();
+    delete responseData.pdfData;
+
+    return successResponse(res, responseData, 'Newsletter created successfully', 201);
   } catch (error) {
     console.error('Create newsletter error:', error);
     if (error.name === 'SequelizeValidationError') {

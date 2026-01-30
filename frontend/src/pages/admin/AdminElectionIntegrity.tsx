@@ -73,7 +73,7 @@ const AdminElectionIntegrity = () => {
       let pdfUrl = "";
 
       if (selectedFile) {
-        const uploadResult = await uploadApi.uploadPdf(selectedFile);
+        const uploadResult = await uploadApi.uploadPdf(selectedFile, 'election-integrity');
         pdfUrl = uploadResult.data.url;
       }
 

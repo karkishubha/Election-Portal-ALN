@@ -43,7 +43,7 @@ const AdminNewsletters = () => {
   const [uploading, setUploading] = useState(false);
   const [newNewsletter, setNewNewsletter] = useState({
     title: "",
-    description: "",
+    summary: "",
     source: "ALN_DRN" as string,
     publishedDate: "",
   });
@@ -63,7 +63,7 @@ const AdminNewsletters = () => {
   };
 
   const handleAddNewsletter = async () => {
-    if (!newNewsletter.title || !newNewsletter.description) return;
+    if (!newNewsletter.title || !newNewsletter.summary) return;
 
     try {
       setUploading(true);
@@ -76,13 +76,13 @@ const AdminNewsletters = () => {
 
       await createMutation.mutateAsync({
         title: newNewsletter.title,
-        description: newNewsletter.description,
+        summary: newNewsletter.summary,
         source: newNewsletter.source,
         publishedDate: newNewsletter.publishedDate || new Date().toISOString(),
         pdfUrl: pdfUrl || "/placeholder.pdf",
       });
 
-      setNewNewsletter({ title: "", description: "", source: "DRN", publishedDate: "" });
+      setNewNewsletter({ title: "", summary: "", source: "ALN_DRN", publishedDate: "" });
       setSelectedFile(null);
       setIsDialogOpen(false);
     } catch (error) {
@@ -160,13 +160,13 @@ const AdminNewsletters = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="description">Summary/Description</Label>
+                    <Label htmlFor="summary">Summary</Label>
                     <Textarea
-                      id="description"
+                      id="summary"
                       placeholder="Brief summary of this issue"
-                      value={newNewsletter.description}
+                      value={newNewsletter.summary}
                       onChange={(e) =>
-                        setNewNewsletter((prev) => ({ ...prev, description: e.target.value }))
+                        setNewNewsletter((prev) => ({ ...prev, summary: e.target.value }))
                       }
                     />
                   </div>
@@ -271,7 +271,7 @@ const AdminNewsletters = () => {
                       <tr key={newsletter.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                         <td className="p-4">
                           <p className="font-medium text-foreground">{newsletter.title}</p>
-                          <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{newsletter.description}</p>
+                          <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{newsletter.summary}</p>
                         </td>
                         <td className="p-4 text-sm text-muted-foreground hidden md:table-cell">
                           {formatDate(newsletter.publishedDate)}

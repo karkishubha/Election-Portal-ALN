@@ -1,7 +1,17 @@
 import { useState, useMemo } from "react";
-import { Users, MapPin, Flag, Search, Filter } from "lucide-react";
+import { Users, Flag, MapPin, TrendingUp, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Layout from "@/components/layout/Layout";
-import PageHeader from "@/components/shared/PageHeader";
+import { StatCard } from "@/components/candidates/StatCard";
+import { CandidateCard } from "@/components/candidates/CandidateCard";
+import { CandidateDetail } from "@/components/candidates/CandidateDetail";
+import { PartyBarChart, QualificationPieChart, GenderChart, ProvinceChart } from "@/components/candidates/charts";
+import { 
+  useCandidatesData, 
+  useFilteredCandidates, 
+  useAggregatedStats, 
+  useFilterOptions 
+} from "@/hooks/useCandidates";
+import { Candidate, FilterState } from "@/types/candidates";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,17 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  useCandidatesData, 
-  useFilteredCandidates, 
-  useAggregatedStats,
-  useFilterOptions 
-} from "@/hooks/useCandidates";
-import { FilterState } from "@/types/candidates";
+
+const ITEMS_PER_PAGE = 12;
 
 const Candidates = () => {
   const { candidates, isLoading, error } = useCandidatesData();
@@ -38,28 +40,40 @@ const Candidates = () => {
     searchText: "",
   });
 
-  const [page, setPage] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
-  const ITEMS_PER_PAGE = 24;
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filterOptions = useFilterOptions(candidates, filters);
   const filteredCandidates = useFilteredCandidates(candidates, filters);
   const stats = useAggregatedStats(filteredCandidates);
 
-  // Pagination
-  const paginatedCandidates = useMemo(() => {
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    return filteredCandidates.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredCandidates, page]);
-
+  // Calculate paginated candidates
   const totalPages = Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE);
+  const paginatedCandidates = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredCandidates.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredCandidates, currentPage]);
 
-  const handleFilterChange = (key: keyof FilterState, value: any) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-    setPage(1); // Reset to first page
+  // Reset page when filters change
+  const updateFilter = (key: keyof FilterState, value: string | number | null) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value === "all" ? null : value,
+    }));
+    setCurrentPage(1);
   };
 
-  const resetFilters = () => {
+  const handleCandidateClick = (candidate: Candidate) => {
+    setSelectedCandidate(candidate);
+    setDetailOpen(true);
+  };
+
+  const activeFiltersCount = Object.entries(filters).filter(
+    ([key, v]) => v !== null && v !== "" && key !== "searchText"
+  ).length;
+
+  const clearFilters = () => {
     setFilters({
       province: null,
       district: null,
@@ -71,226 +85,350 @@ const Candidates = () => {
       ageMax: null,
       searchText: "",
     });
-    setPage(1);
+    setCurrentPage(1);
   };
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-lg mx-auto text-center">
+            <div className="text-6xl mb-4">😔</div>
+            <h1 className="text-2xl font-bold text-foreground mb-2">डाटा लोड गर्न सकिएन</h1>
+            <p className="text-muted-foreground mb-4">Failed to load candidates data</p>
+            <p className="text-sm text-muted-foreground">{error.message}</p>
+            <Button onClick={() => window.location.reload()} className="mt-4">
+              पुनः प्रयास गर्नुहोस्
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
-      <PageHeader
-        title="Election Candidates 2026"
-        description="Explore detailed information about all candidates contesting in Nepal's 2026 general election. Filter by district, province, political party, and more."
-        icon={<Users className="w-6 h-6" />}
-        accentColor="bg-primary"
-      />
+      <div className="container mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+            नेपाल निर्वाचन उम्मेदवार
+          </h1>
+          <p className="mt-2 text-lg text-muted-foreground">
+            Nepal Election Candidates Dashboard
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground max-w-2xl">
+            जिल्ला, प्रदेश, र पार्टी अनुसार उम्मेदवारहरू खोज्नुहोस् • 
+            Explore candidates by district, province, and party
+          </p>
+        </div>
 
-      <section className="py-12 lg:py-16">
-        <div className="civic-container">
-          
-          {/* Stats Cards */}
+        {/* Stats Overview */}
+        {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <Card className="p-4">
-              <div className="text-2xl font-bold text-primary">{stats.totalCandidates}</div>
-              <div className="text-sm text-muted-foreground">Total Candidates</div>
-            </Card>
-            <Card className="p-4">
-              <div className="text-2xl font-bold text-primary">{Object.keys(stats.byParty).length}</div>
-              <div className="text-sm text-muted-foreground">Political Parties</div>
-            </Card>
-            <Card className="p-4">
-              <div className="text-2xl font-bold text-primary">{Object.keys(stats.byDistrict).length}</div>
-              <div className="text-sm text-muted-foreground">Districts</div>
-            </Card>
-            <Card className="p-4">
-              <div className="text-2xl font-bold text-primary">{Object.keys(stats.byProvince).length}</div>
-              <div className="text-sm text-muted-foreground">Provinces</div>
-            </Card>
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-32 rounded-xl" />
+            ))}
           </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <StatCard
+              title="Total Candidates"
+              titleNp="कुल उम्मेदवार"
+              value={stats.totalCandidates}
+              icon={Users}
+              variant="primary"
+            />
+            <StatCard
+              title="Political Parties"
+              titleNp="राजनीतिक दलहरू"
+              value={Object.keys(stats.byParty).length}
+              icon={Flag}
+            />
+            <StatCard
+              title="Districts"
+              titleNp="जिल्लाहरू"
+              value={Object.keys(stats.byDistrict).length}
+              icon={MapPin}
+            />
+            <StatCard
+              title="Provinces"
+              titleNp="प्रदेशहरू"
+              value={Object.keys(stats.byProvince).length}
+              icon={TrendingUp}
+            />
+          </div>
+        )}
 
-          {/* Search and Filter Toggle */}
-          <div className="mb-6 space-y-4">
-            <div className="flex gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search by candidate name, party, or district..."
-                  value={filters.searchText || ""}
-                  onChange={(e) => handleFilterChange("searchText", e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <Filter className="w-4 h-4 mr-2" />
-                Filters
-              </Button>
+        {/* Filters Section */}
+        <div className="mb-8 p-4 bg-card rounded-xl border border-border">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-foreground">फिल्टर</h3>
+              <span className="text-sm text-muted-foreground">(Filters)</span>
+              {activeFiltersCount > 0 && (
+                <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                  {activeFiltersCount}
+                </span>
+              )}
             </div>
-
-            {/* Filter Panel */}
-            {showFilters && (
-              <Card className="p-4 bg-muted/50">
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  <Select 
-                    value={filters.province || "all"} 
-                    onValueChange={(value) => handleFilterChange("province", value === "all" ? null : value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Province" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Provinces</SelectItem>
-                      {filterOptions.provinces.map((province) => (
-                        <SelectItem key={province} value={province}>{province}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select 
-                    value={filters.district || "all"} 
-                    onValueChange={(value) => handleFilterChange("district", value === "all" ? null : value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="District" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Districts</SelectItem>
-                      {filterOptions.districts.map((district) => (
-                        <SelectItem key={district} value={district}>{district}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select 
-                    value={filters.party || "all"} 
-                    onValueChange={(value) => handleFilterChange("party", value === "all" ? null : value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Political Party" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Parties</SelectItem>
-                      {filterOptions.parties.map((party) => (
-                        <SelectItem key={party} value={party}>{party}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select 
-                    value={filters.gender || "all"} 
-                    onValueChange={(value) => handleFilterChange("gender", value === "all" ? null : value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="पुरुष">पुरुष (Male)</SelectItem>
-                      <SelectItem value="महिला">महिला (Female)</SelectItem>
-                      <SelectItem value="अन्य">अन्य (Other)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="mt-4 flex justify-end">
-                  <Button variant="ghost" size="sm" onClick={resetFilters}>
-                    Reset Filters
-                  </Button>
-                </div>
-              </Card>
+            {activeFiltersCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="mr-1 h-4 w-4" />
+                Clear all
+              </Button>
             )}
           </div>
 
-          {/* Error State */}
-          {error && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertDescription>
-                Failed to load candidates data. Please try again later.
-              </AlertDescription>
-            </Alert>
-          )}
+          {/* Search */}
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="उम्मेदवारको नाम खोज्नुहोस्... (Search candidate name)"
+                value={filters.searchText || ""}
+                onChange={(e) => updateFilter("searchText", e.target.value || null)}
+                className="pl-10"
+              />
+            </div>
+          </div>
 
-          {/* Loading State */}
-          {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+            {/* Province Filter */}
+            <Select
+              value={filters.province || "all"}
+              onValueChange={(v) => updateFilter("province", v)}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="प्रदेश (Province)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">सबै प्रदेश</SelectItem>
+                {filterOptions.provinces.map((province) => (
+                  <SelectItem key={province} value={province}>
+                    {province}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* District Filter */}
+            <Select
+              value={filters.district || "all"}
+              onValueChange={(v) => updateFilter("district", v)}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="जिल्ला (District)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">सबै जिल्ला</SelectItem>
+                {filterOptions.districts.map((district) => (
+                  <SelectItem key={district} value={district}>
+                    {district}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Constituency Filter */}
+            <Select
+              value={filters.constituency?.toString() || "all"}
+              onValueChange={(v) => updateFilter("constituency", v === "all" ? null : parseInt(v))}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="क्षेत्र (Area)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">सबै क्षेत्र</SelectItem>
+                {filterOptions.constituencies.map((constituency) => (
+                  <SelectItem key={constituency} value={constituency.toString()}>
+                    क्षेत्र {constituency}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Party Filter */}
+            <Select
+              value={filters.party || "all"}
+              onValueChange={(v) => updateFilter("party", v)}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="पार्टी (Party)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">सबै पार्टी</SelectItem>
+                {filterOptions.parties.map((party) => (
+                  <SelectItem key={party} value={party}>
+                    {party}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Qualification Filter */}
+            <Select
+              value={filters.qualification || "all"}
+              onValueChange={(v) => updateFilter("qualification", v)}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="योग्यता (Qualification)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">सबै योग्यता</SelectItem>
+                {filterOptions.qualifications.map((qual) => (
+                  <SelectItem key={qual} value={qual}>
+                    {qual}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Gender Filter */}
+            <Select
+              value={filters.gender || "all"}
+              onValueChange={(v) => updateFilter("gender", v)}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="लिङ्ग (Gender)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">सबै लिङ्ग</SelectItem>
+                {filterOptions.genders.map((gender) => (
+                  <SelectItem key={gender} value={gender}>
+                    {gender}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Charts Grid */}
+        {isLoading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-80 rounded-xl" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <PartyBarChart data={stats.byParty} />
+            <QualificationPieChart data={stats.byQualification} />
+            <GenderChart data={stats.byGender} />
+            <ProvinceChart data={stats.byProvince} />
+          </div>
+        )}
+
+        {/* Candidates Grid */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">
+                उम्मेदवारहरू
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {filteredCandidates.length.toLocaleString()} उम्मेदवार फेला पर्यो
+              </p>
+            </div>
+          </div>
+
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {[...Array(12)].map((_, i) => (
-                <Card key={i} className="p-6">
-                  <Skeleton className="h-4 w-3/4 mb-2" />
-                  <Skeleton className="h-3 w-1/2 mb-4" />
-                  <Skeleton className="h-3 w-full mb-2" />
-                  <Skeleton className="h-3 w-full" />
-                </Card>
+                <Skeleton key={i} className="h-40 rounded-xl" />
               ))}
+            </div>
+          ) : paginatedCandidates.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {paginatedCandidates.map((candidate) => (
+                <CandidateCard
+                  key={candidate.CandidateID}
+                  candidate={candidate}
+                  onClick={() => handleCandidateClick(candidate)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-card rounded-xl border border-border">
+              <div className="text-4xl mb-4">🔍</div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                कुनै उम्मेदवार फेला परेन
+              </h3>
+              <p className="text-muted-foreground">
+                No candidates found matching your filters
+              </p>
+              <Button variant="outline" onClick={clearFilters} className="mt-4">
+                फिल्टर हटाउनुहोस्
+              </Button>
             </div>
           )}
 
-          {/* Candidates Grid */}
-          {!isLoading && !error && (
-            <>
-              {filteredCandidates.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">No candidates found matching your filters.</p>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    {paginatedCandidates.map((candidate) => (
-                      <Card key={candidate.CandidateID} className="p-6 hover:shadow-lg transition-shadow">
-                        <h3 className="font-semibold text-lg mb-2">{candidate.CandidateName}</h3>
-                        
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Flag className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-muted-foreground">{candidate.PoliticalPartyName}</span>
-                          </div>
-                          
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-muted-foreground">
-                              {candidate.DistrictName}, {candidate.StateName}
-                            </span>
-                          </div>
-                          
-                          <div className="flex flex-wrap gap-2 mt-3">
-                            <Badge variant="secondary">Age: {candidate.AGE_YR}</Badge>
-                            <Badge variant="outline">{candidate.Gender}</Badge>
-                            {candidate.QUALIFICATION && (
-                              <Badge variant="outline">{candidate.QUALIFICATION}</Badge>
-                            )}
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                अघिल्लो
+              </Button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className="w-10"
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+              </div>
 
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                        disabled={page === 1}
-                      >
-                        Previous
-                      </Button>
-                      <span className="text-sm text-muted-foreground">
-                        Page {page} of {totalPages}
-                      </span>
-                      <Button
-                        variant="outline"
-                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                        disabled={page === totalPages}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
-            </>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+              >
+                पछिल्लो
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           )}
         </div>
-      </section>
+
+        {/* Candidate Detail Modal */}
+        <CandidateDetail
+          candidate={selectedCandidate}
+          open={detailOpen}
+          onOpenChange={setDetailOpen}
+        />
+      </div>
     </Layout>
   );
 };

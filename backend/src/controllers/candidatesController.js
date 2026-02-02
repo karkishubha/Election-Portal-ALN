@@ -13,8 +13,14 @@ const CANDIDATES_API_URL = 'https://result.election.gov.np/JSONFiles/ElectionRes
  */
 const getCandidates = async (req, res) => {
   try {
+    console.log('📥 Fetching candidates data from Election Commission...');
+    
     // Fetch data from Election Commission API
-    https.get(CANDIDATES_API_URL, (apiResponse) => {
+    https.get(CANDIDATES_API_URL, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    }, (apiResponse) => {
       let data = '';
 
       // Collect data chunks
@@ -25,7 +31,9 @@ const getCandidates = async (req, res) => {
       // When complete, send to client
       apiResponse.on('end', () => {
         try {
+          console.log('✅ Received data, parsing JSON...');
           const candidates = JSON.parse(data);
+          console.log(`✅ Successfully parsed ${candidates.length} candidates`);
           
           res.status(200).json({
             success: true,
@@ -36,7 +44,7 @@ const getCandidates = async (req, res) => {
             lastFetched: new Date().toISOString()
           });
         } catch (parseError) {
-          console.error('Error parsing candidates data:', parseError);
+          console.error('❌ Error parsing candidates data:', parseError);
           res.status(500).json({
             success: false,
             message: 'Failed to parse candidates data',
@@ -46,7 +54,7 @@ const getCandidates = async (req, res) => {
       });
 
     }).on('error', (error) => {
-      console.error('Error fetching candidates data:', error);
+      console.error('❌ Error fetching candidates data:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to fetch candidates data from Election Commission',
@@ -55,7 +63,7 @@ const getCandidates = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Candidates Controller Error:', error);
+    console.error('❌ Candidates Controller Error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error while fetching candidates',

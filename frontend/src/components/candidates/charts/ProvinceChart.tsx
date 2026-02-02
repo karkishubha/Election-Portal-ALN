@@ -1,0 +1,79 @@
+import { useMemo } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+interface ProvinceChartProps {
+  data: Record<string, number>;
+  title?: string;
+  titleNp?: string;
+}
+
+export function ProvinceChart({
+  data,
+  title = "Candidates by Province",
+  titleNp = "प्रदेश अनुसार उम्मेदवार",
+}: ProvinceChartProps) {
+  const chartData = useMemo(() => {
+    return Object.entries(data)
+      .map(([name, value]) => ({
+        name,
+        shortName: name.replace(" प्रदेश", "").slice(0, 10),
+        value,
+      }))
+      .sort((a, b) => b.value - a.value);
+  }, [data]);
+
+  return (
+    <div className="bg-card rounded-xl border border-border p-4 h-full">
+      <div className="mb-4">
+        <h3 className="font-semibold text-foreground">{titleNp}</h3>
+        <p className="text-xs text-muted-foreground">{title}</p>
+      </div>
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={chartData}
+            margin={{ top: 5, right: 20, left: 10, bottom: 40 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis
+              dataKey="shortName"
+              tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+              angle={-45}
+              textAnchor="end"
+              interval={0}
+              height={60}
+            />
+            <YAxis
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--popover))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
+                fontSize: "12px",
+              }}
+              formatter={(value: number) => [`${value.toLocaleString()} उम्मेदवार`, ""]}
+              labelFormatter={(_label: string, payload: any[]) => 
+                payload[0]?.payload?.name || _label
+              }
+            />
+            <Bar
+              dataKey="value"
+              fill="hsl(var(--primary))"
+              radius={[4, 4, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}

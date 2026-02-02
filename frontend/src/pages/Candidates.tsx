@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Users, Flag, MapPin, TrendingUp, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, Flag, MapPin, TrendingUp, Search, X, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { StatCard } from "@/components/candidates/StatCard";
 import { CandidateCard } from "@/components/candidates/CandidateCard";
@@ -109,6 +109,21 @@ const Candidates = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
+        {/* Attention Disclaimer Banner */}
+        <div
+          role="alert"
+          className="mb-6 rounded-xl border p-4 bg-yellow-50 border-yellow-200 text-yellow-900 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-100"
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 mt-0.5" />
+            <div>
+              <p className="font-semibold">लोड हुन केही सेकेन्ड लाग्न सक्छ</p>
+              <p className="text-sm">
+                Heads up: This page may take a few seconds to load while candidate data is fetched.
+              </p>
+            </div>
+          </div>
+        </div>
         {/* Hero Section */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">

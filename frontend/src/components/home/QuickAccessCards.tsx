@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BookOpen, Shield, Newspaper, Users, ArrowRight } from "lucide-react";
+import { BookOpen, Shield, BarChart3, Users, ArrowRight } from "lucide-react";
 
 const cards = [
   {
     title: "Voter Education",
     description: "Learn about the voting process, eligibility, and your rights as a voter.",
     icon: BookOpen,
-    path: "/voter-education",
+    path: "/election-2026?tab=education",
     gradient: "from-blue-600 to-blue-800",
     iconBg: "bg-blue-500",
     hoverBorder: "hover:border-blue-400",
@@ -16,16 +16,16 @@ const cards = [
     title: "Election Integrity",
     description: "Resources for free, fair, and transparent elections.",
     icon: Shield,
-    path: "/election-integrity",
+    path: "/election-2026?tab=integrity",
     gradient: "from-emerald-600 to-emerald-800",
     iconBg: "bg-emerald-500",
     hoverBorder: "hover:border-emerald-400",
   },
   {
-    title: "Election Monitoring",
-    description: "Access newsletters and reports from election observers.",
-    icon: Newspaper,
-    path: "/election-monitoring",
+    title: "Election Data",
+    description: "Key facts, figures, and comprehensive information about the 2026 election.",
+    icon: BarChart3,
+    path: "/election-2026?tab=data",
     gradient: "from-amber-500 to-orange-600",
     iconBg: "bg-amber-500",
     hoverBorder: "hover:border-amber-400",
@@ -34,7 +34,7 @@ const cards = [
     title: "Political Parties",
     description: "Neutral information about contesting parties and manifestos.",
     icon: Users,
-    path: "/political-parties",
+    path: "/election-2026?tab=parties",
     gradient: "from-rose-600 to-red-700",
     iconBg: "bg-rose-500",
     hoverBorder: "hover:border-rose-400",

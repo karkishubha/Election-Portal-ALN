@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BarChart3, Users, Shield, BookOpen } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import OfficialAnnouncements from "@/components/shared/OfficialAnnouncements";
@@ -12,7 +13,22 @@ import Election2026VoterEducation from "./election2026/VoterEducation";
 type TabType = "data" | "parties" | "integrity" | "education";
 
 const Election2026 = () => {
-  const [activeTab, setActiveTab] = useState<TabType>("data");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get("tab") as TabType;
+  const [activeTab, setActiveTab] = useState<TabType>(tabFromUrl || "data");
+
+  // Update tab when URL changes
+  useEffect(() => {
+    if (tabFromUrl && ["data", "parties", "integrity", "education"].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
+
+  // Update URL when tab changes
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
 
   const tabs = [
     {
@@ -72,7 +88,7 @@ const Election2026 = () => {
                 <Button
                   key={tab.id}
                   variant={activeTab === tab.id ? "default" : "ghost"}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabChange(tab.id)}
                   className="flex items-center gap-2 whitespace-nowrap"
                 >
                   <Icon className="w-4 h-4" />

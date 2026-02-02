@@ -4,12 +4,20 @@ import { Candidate, FilterState, AggregatedStats, AGE_GROUPS } from '@/types/can
 // Direct URL to Election Commission data
 const CANDIDATES_URL = 'https://result.election.gov.np/JSONFiles/ElectionResultCentral2082.txt';
 
-// Multiple CORS proxies as fallbacks
+// Multiple CORS proxies - will race all at once for fastest response
 const CORS_PROXIES = [
+  'https://api.codetabs.com/v1/proxy?quest=',
   'https://api.allorigins.win/raw?url=',
   'https://corsproxy.io/?',
-  'https://api.codetabs.com/v1/proxy?quest=',
 ];
+
+// Timeout for fetch requests (10 seconds)
+const FETCH_TIMEOUT_MS = 10000;
+
+// Cache configuration
+const CACHE_KEY = 'nepal_election_candidates_2082';
+const CACHE_EXPIRY_KEY = 'nepal_election_candidates_2082_expiry';
+const CACHE_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 // Education group mapping
 const educationGroupKeywords: Record<string, string[]> = {
@@ -38,7 +46,46 @@ export function getEducationGroup(qualification: string): string {
 }
 
 /**
- * Fetch candidates data using CORS proxy with fallbacks
+ * Get cached candidates from localStorage
+ */
+function getCachedCandidates(): Candidate[] | null {
+  try {
+    const expiry = localStorage.getItem(CACHE_EXPIRY_KEY);
+    if (!expiry || Date.now() > parseInt(expiry)) {
+      // Cache expired or doesn't exist
+      localStorage.removeItem(CACHE_KEY);
+      localStorage.removeItem(CACHE_EXPIRY_KEY);
+      return null;
+    }
+    
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const data = JSON.parse(cached);
+      console.log(`Loaded ${data.length} candidates from cache`);
+      return data;
+    }
+  } catch (e) {
+    console.warn('Failed to read cache:', e);
+  }
+  return null;
+}
+
+/**
+ * Save candidates to localStorage cache
+ */
+function setCachedCandidates(candidates: Candidate[]): void {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(candidates));
+    localStorage.setItem(CACHE_EXPIRY_KEY, (Date.now() + CACHE_DURATION_MS).toString());
+    console.log(`Cached ${candidates.length} candidates (expires in 7 days)`);
+  } catch (e) {
+    console.warn('Failed to cache candidates:', e);
+  }
+}
+
+/**
+ * Fetch candidates data - uses cache if available, otherwise fetches from API
+ * Uses parallel proxy racing for faster first fetch
  */
 export const useCandidatesData = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -47,39 +94,76 @@ export const useCandidatesData = () => {
 
   useEffect(() => {
     const fetchWithProxy = async (proxyUrl: string): Promise<Candidate[]> => {
-      const response = await fetch(`${proxyUrl}${encodeURIComponent(CANDIDATES_URL)}`);
-      if (!response.ok) {
-        throw new Error(`Proxy ${proxyUrl} failed`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+      
+      try {
+        const response = await fetch(
+          `${proxyUrl}${encodeURIComponent(CANDIDATES_URL)}`,
+          { signal: controller.signal }
+        );
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`Proxy ${proxyUrl} failed with status ${response.status}`);
+        }
+        return response.json();
+      } catch (err) {
+        clearTimeout(timeoutId);
+        throw err;
       }
-      return response.json();
     };
 
     const fetchCandidates = async () => {
       try {
         setIsLoading(true);
         
-        // Try each proxy until one works
-        let data: Candidate[] | null = null;
-        let lastError: Error | null = null;
-        
-        for (const proxy of CORS_PROXIES) {
-          try {
-            console.log(`Trying proxy: ${proxy}`);
-            data = await fetchWithProxy(proxy);
-            console.log(`Success with proxy: ${proxy}, got ${data.length} candidates`);
-            break;
-          } catch (err) {
-            console.warn(`Proxy failed: ${proxy}`, err);
-            lastError = err instanceof Error ? err : new Error('Unknown error');
-          }
-        }
-        
-        if (data) {
-          setCandidates(data);
+        // Check cache first - instant load!
+        const cachedData = getCachedCandidates();
+        if (cachedData && cachedData.length > 0) {
+          console.log('✅ Loaded from cache:', cachedData.length, 'candidates');
+          setCandidates(cachedData);
           setError(null);
-        } else {
-          throw lastError || new Error('All proxies failed');
+          setIsLoading(false);
+          return;
         }
+        
+        // No cache - race all proxies in parallel for fastest response!
+        console.log('🔄 Fetching from API (racing all proxies)...');
+        const startTime = Date.now();
+        
+        // Create a promise that resolves with the first successful response
+        const raceProxies = (): Promise<Candidate[]> => {
+          return new Promise((resolve, reject) => {
+            let completedCount = 0;
+            const errors: Error[] = [];
+            
+            CORS_PROXIES.forEach((proxy) => {
+              fetchWithProxy(proxy)
+                .then((data) => {
+                  console.log(`✅ Success with ${proxy} in ${Date.now() - startTime}ms`);
+                  resolve(data);
+                })
+                .catch((err) => {
+                  console.warn(`❌ Proxy failed: ${proxy}`, err.message);
+                  errors.push(err);
+                  completedCount++;
+                  
+                  // Only reject if ALL proxies failed
+                  if (completedCount === CORS_PROXIES.length) {
+                    reject(new Error(`All proxies failed: ${errors.map(e => e.message).join(', ')}`));
+                  }
+                });
+            });
+          });
+        };
+        
+        const data = await raceProxies();
+        console.log(`📊 Loaded ${data.length} candidates in ${Date.now() - startTime}ms`);
+        
+        setCandidates(data);
+        setCachedCandidates(data); // Save to cache for next time
+        setError(null);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'));
         console.error('Error fetching candidates:', err);

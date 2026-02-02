@@ -8,6 +8,7 @@
 const authRoutes = require('./authRoutes');
 const uploadRoutes = require('./uploadRoutes');
 const statsRoutes = require('./statsRoutes');
+const candidatesRoutes = require('./candidatesRoutes');
 
 // Public and Admin routes separated
 const voterEducationRoutes = require('./voterEducationRoutes');
@@ -33,6 +34,7 @@ const registerRoutes = (app) => {
 
   // === PUBLIC ROUTES (read-only) ===
   app.use('/api/stats', statsRoutes);
+  app.use('/api/candidates', candidatesRoutes);
   app.use('/api/voter-education', voterEducationRoutes);
   app.use('/api/election-integrity', electionIntegrityRoutes);
   app.use('/api/newsletters', newsletterRoutes);

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Candidate, FilterState, AggregatedStats } from '@/types/candidates';
 
-const CANDIDATES_API_URL = 'https://result.election.gov.np/JSONFiles/ElectionResultCentral2082.txt';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 /**
- * Fetch candidates data from Election Commission API
+ * Fetch candidates data from our backend proxy
  */
 export const useCandidatesData = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -15,14 +15,14 @@ export const useCandidatesData = () => {
     const fetchCandidates = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(CANDIDATES_API_URL);
+        const response = await fetch(`${API_BASE_URL}/candidates`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch candidates data');
         }
         
-        const data = await response.json();
-        setCandidates(data);
+        const result = await response.json();
+        setCandidates(result.data || []);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'));

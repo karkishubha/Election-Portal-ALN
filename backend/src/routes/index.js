@@ -16,12 +16,26 @@ const { adminRouter: voterEducationAdminRoutes } = require('./voterEducationRout
 
 const electionIntegrityRoutes = require('./electionIntegrityRoutes');
 const { adminRouter: electionIntegrityAdminRoutes } = require('./electionIntegrityRoutes');
+const violationsRoutes = require('./violationsRoutes');
+const { adminRouter: violationsAdminRoutes } = require('./violationsRoutes');
+const misinformationRoutes = require('./misinformationRoutes');
+const { adminRouter: misinformationAdminRoutes } = require('./misinformationRoutes');
 
 const newsletterRoutes = require('./newsletterRoutes');
 const { adminRouter: newsletterAdminRoutes } = require('./newsletterRoutes');
 
 const politicalPartyRoutes = require('./politicalPartyRoutes');
 const { adminRouter: politicalPartyAdminRoutes } = require('./politicalPartyRoutes');
+
+// Voter Education subsections
+const infographicsRoutes = require('./infographicsRoutes');
+const { adminRouter: infographicsAdminRoutes } = require('./infographicsRoutes');
+const videosRoutes = require('./videosRoutes');
+const { adminRouter: videosAdminRoutes } = require('./videosRoutes');
+const explainersRoutes = require('./explainersRoutes');
+const { adminRouter: explainersAdminRoutes } = require('./explainersRoutes');
+const officialAnnouncementsRoutes = require('./officialAnnouncementsRoutes');
+const { adminRouter: officialAnnouncementsAdminRoutes } = require('./officialAnnouncementsRoutes');
 
 /**
  * Register all routes on the Express app
@@ -37,12 +51,24 @@ const registerRoutes = (app) => {
   app.use('/api/candidates', candidatesRoutes);
   app.use('/api/voter-education', voterEducationRoutes);
   app.use('/api/election-integrity', electionIntegrityRoutes);
+  app.use('/api/violations', violationsRoutes);
+  app.use('/api/misinformation', misinformationRoutes);
+  app.use('/api/infographics', infographicsRoutes);
+  app.use('/api/videos', videosRoutes);
+  app.use('/api/explainers', explainersRoutes);
+  app.use('/api/announcements', officialAnnouncementsRoutes);
   app.use('/api/newsletters', newsletterRoutes);
   app.use('/api/parties', politicalPartyRoutes);
 
   // === ADMIN ROUTES (protected) ===
   app.use('/api/admin/voter-education', voterEducationAdminRoutes);
   app.use('/api/admin/election-integrity', electionIntegrityAdminRoutes);
+  app.use('/api/admin/violations', violationsAdminRoutes);
+  app.use('/api/admin/misinformation', misinformationAdminRoutes);
+  app.use('/api/admin/infographics', infographicsAdminRoutes);
+  app.use('/api/admin/videos', videosAdminRoutes);
+  app.use('/api/admin/explainers', explainersAdminRoutes);
+  app.use('/api/admin/announcements', officialAnnouncementsAdminRoutes);
   app.use('/api/admin/newsletters', newsletterAdminRoutes);
   app.use('/api/admin/parties', politicalPartyAdminRoutes);
 

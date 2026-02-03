@@ -1,51 +1,11 @@
 import { motion } from "framer-motion";
 import { Bell, Clock, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface Announcement {
-  id: number;
-  title: string;
-  date: string;
-  source: string;
-  link: string;
-  priority: "high" | "medium" | "low";
-}
+import { useAnnouncements } from "@/hooks/useQueries";
 
 const OfficialAnnouncements = () => {
-  const announcements: Announcement[] = [
-    {
-      id: 1,
-      title: "Voter Registration Extended to April 15, 2082",
-      date: "2082-03-20",
-      source: "Election Commission of Nepal",
-      link: "https://election.gov.np",
-      priority: "high"
-    },
-    {
-      id: 2,
-      title: "Campaign Period Guidelines Released",
-      date: "2082-03-18",
-      source: "Election Commission of Nepal",
-      link: "https://election.gov.np",
-      priority: "high"
-    },
-    {
-      id: 3,
-      title: "Polling Station Details Now Available",
-      date: "2082-03-15",
-      source: "Election Commission of Nepal",
-      link: "https://election.gov.np",
-      priority: "medium"
-    },
-    {
-      id: 4,
-      title: "Election Observer Accreditation Process Open",
-      date: "2082-03-10",
-      source: "Election Commission of Nepal",
-      link: "https://election.gov.np",
-      priority: "medium"
-    }
-  ];
+  const { data } = useAnnouncements(1);
+  const announcements = data?.data || [];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {

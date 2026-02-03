@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle, CheckCircle2, DollarSign, FileText, Loader2, Eye } from "lucide-react";
+import { AlertCircle, CheckCircle2, FileText, Loader2, Eye } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useNewsletters, useNewsletterDetail } from "@/hooks/useQueries";
+import { useNewsletters, useNewsletterDetail, useViolations, useMisinformation } from "@/hooks/useQueries";
 import { Button } from "@/components/ui/button";
 import PdfViewer from "@/components/shared/PdfViewer";
 
 const Election2026Integrity = () => {
   const [selectedNewsletterId, setSelectedNewsletterId] = useState<number | null>(null);
   const [isPdfOpen, setIsPdfOpen] = useState(false);
+  const [pdfViewerState, setPdfViewerState] = useState<{ url?: string; title?: string; fileName?: string } | null>(null);
 
   // Fetch newsletters list from database
   const { data: newsletterData, isLoading: newslettersLoading, isError: newslettersError } = useNewsletters(1);
@@ -20,36 +21,15 @@ const Election2026Integrity = () => {
 
   const handleViewPdf = (id: number) => {
     setSelectedNewsletterId(id);
+    setPdfViewerState(null);
     setIsPdfOpen(true);
   };
 
-  const violations = [
-    {
-      id: 1,
-      date: "2082-03-15",
-      party: "Sample Party A",
-      violation: "Code of Conduct Violation",
-      description: "Unauthorized campaign material distribution",
-      severity: "medium"
-    },
-    {
-      id: 2,
-      date: "2082-03-10",
-      party: "Sample Party B",
-      violation: "Campaign Finance Violation",
-      description: "Exceeded spending limit",
-      severity: "high"
-    }
-  ];
-
-  const misinformation = [
-    {
-      id: 1,
-      claim: "Sample False Claim",
-      status: "false",
-      verified_info: "Verified information about the claim"
-    }
-  ];
+  // Fetch Integrity documents by category (admin can add/delete via Admin panel)
+  const { data: violationsData } = useViolations(1);
+  const { data: misinformationData } = useMisinformation(1);
+  const violations = violationsData?.data || [];
+  const misinformation = misinformationData?.data || [];
 
   return (
     <motion.div
@@ -69,11 +49,10 @@ const Election2026Integrity = () => {
       </div>
 
       <Tabs defaultValue="newsletters" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="newsletters">Newsletters</TabsTrigger>
           <TabsTrigger value="violations">Violations</TabsTrigger>
           <TabsTrigger value="misinformation">Misinformation</TabsTrigger>
-          <TabsTrigger value="finance">Campaign Finance</TabsTrigger>
         </TabsList>
 
         {/* Newsletters Tab */}
@@ -154,7 +133,7 @@ const Election2026Integrity = () => {
         {/* Code of Conduct Violations Tab */}
         <TabsContent value="violations" className="space-y-4">
           <div className="space-y-4">
-            {violations.map((violation) => (
+            {violations.map((violation: any) => (
               <motion.div
                 key={violation.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -162,16 +141,21 @@ const Election2026Integrity = () => {
                 className="bg-card rounded-lg p-6 border"
               >
                 <div className="flex items-start gap-4">
-                  <AlertCircle className={`w-6 h-6 flex-shrink-0 mt-1 ${
-                    violation.severity === "high" ? "text-red-500" : "text-yellow-500"
-                  }`} />
+                  <AlertCircle className="w-6 h-6 flex-shrink-0 mt-1 text-yellow-500" />
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-bold text-foreground">{violation.violation}</h3>
-                      <span className="text-xs text-muted-foreground">{violation.date}</span>
+                      <h3 className="font-bold text-foreground">{violation.title}</h3>
+                      <span className="text-xs text-muted-foreground">{new Date(violation.createdAt).toLocaleDateString()}</span>
                     </div>
-                    <p className="text-sm font-semibold text-primary mb-2">{violation.party}</p>
                     <p className="text-sm text-muted-foreground">{violation.description}</p>
+                    {violation.pdfUrl && (
+                      <Button variant="outline" size="sm" className="mt-3" onClick={() => {
+                        setPdfViewerState({ url: violation.pdfUrl, title: violation.title });
+                        setIsPdfOpen(true);
+                      }}>
+                        View PDF
+                      </Button>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -182,7 +166,7 @@ const Election2026Integrity = () => {
         {/* Misinformation vs Verified Tab */}
         <TabsContent value="misinformation" className="space-y-4">
           <div className="space-y-4">
-            {misinformation.map((item) => (
+            {misinformation.map((item: any) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -192,7 +176,7 @@ const Election2026Integrity = () => {
                 <div className="mb-4">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertCircle className="w-5 h-5 text-red-500" />
-                    <p className="font-semibold text-foreground">Claim: {item.claim}</p>
+                    <p className="font-semibold text-foreground">{item.title}</p>
                   </div>
                   <span className="inline-block bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full">
                     FALSE
@@ -203,35 +187,21 @@ const Election2026Integrity = () => {
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
                     <p className="font-semibold text-foreground">Verified Information</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">{item.verified_info}</p>
+                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                  {item.pdfUrl && (
+                    <Button variant="outline" size="sm" className="mt-3" onClick={() => {
+                      setPdfViewerState({ url: item.pdfUrl, title: item.title });
+                      setIsPdfOpen(true);
+                    }}>
+                      View PDF
+                    </Button>
+                  )}
                 </div>
               </motion.div>
             ))}
           </div>
         </TabsContent>
 
-        {/* Campaign Finance Tab */}
-        <TabsContent value="finance" className="space-y-4">
-          <div className="bg-card rounded-lg p-6 border">
-            <DollarSign className="w-6 h-6 text-primary mb-3" />
-            <h3 className="font-bold text-foreground mb-2">Campaign Finance Information</h3>
-            <p className="text-muted-foreground text-sm mb-6">
-              Information about campaign spending limits and financial disclosures.
-            </p>
-            <div className="space-y-4">
-              <div className="bg-muted/50 rounded p-4">
-                <p className="font-semibold text-foreground mb-2">Budget Ceiling (2026)</p>
-                <p className="text-2xl font-bold text-primary">NPR 1 Crore</p>
-                <p className="text-sm text-muted-foreground mt-1">Per registered political party</p>
-              </div>
-              <div className="bg-muted/50 rounded p-4">
-                <p className="font-semibold text-foreground mb-2">Individual Candidate Limit</p>
-                <p className="text-2xl font-bold text-accent">NPR 50 Lakh</p>
-                <p className="text-sm text-muted-foreground mt-1">Per FPTP candidate</p>
-              </div>
-            </div>
-          </div>
-        </TabsContent>
       </Tabs>
 
       {/* PDF Viewer Modal */}
@@ -240,11 +210,12 @@ const Election2026Integrity = () => {
         onClose={() => {
           setIsPdfOpen(false);
           setSelectedNewsletterId(null);
+          setPdfViewerState(null);
         }}
-        pdfData={selectedNewsletter?.pdfData}
-        pdfUrl={selectedNewsletter?.pdfUrl}
-        title={selectedNewsletter?.title || 'Newsletter'}
-        fileName={selectedNewsletter?.pdfFileName}
+        pdfData={pdfViewerState ? undefined : selectedNewsletter?.pdfData}
+        pdfUrl={pdfViewerState?.url || selectedNewsletter?.pdfUrl}
+        title={pdfViewerState?.title || selectedNewsletter?.title || 'Document'}
+        fileName={pdfViewerState?.fileName || selectedNewsletter?.pdfFileName}
       />
 
       {/* Loading overlay when fetching PDF */}

@@ -48,6 +48,16 @@ const PoliticalParty = sequelize.define('PoliticalParty', {
     allowNull: true,
     field: 'manifesto_pdf_url',
   },
+  manifestoPdfData: {
+    type: DataTypes.BLOB('long'),
+    allowNull: true,
+    field: 'manifesto_pdf_data',
+  },
+  manifestoPdfFilename: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    field: 'manifesto_pdf_filename',
+  },
   prListPdfUrl: {
     type: DataTypes.STRING(500),
     allowNull: true,

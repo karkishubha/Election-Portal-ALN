@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS election_integrity (
   title VARCHAR(200) NOT NULL,
   description TEXT NOT NULL,
   pdf_url VARCHAR(500) NOT NULL,
-  category ENUM('code_of_conduct','misinformation','transparency','observer_guide','complaint_mechanism','legal_framework','other') NOT NULL,
+  category ENUM('code_of_conduct','violations','misinformation','transparency','observer_guide','complaint_mechanism','legal_framework','other') NOT NULL,
   language ENUM('en', 'ne', 'other') DEFAULT 'ne',
   published TINYINT(1) DEFAULT 0,
   created_by INT NULL,

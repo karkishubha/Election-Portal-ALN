@@ -40,8 +40,9 @@ const connectDB = async () => {
     
     // Sync models in development (use migrations in production)
     if (process.env.NODE_ENV !== 'production') {
-      // Use alter: true to add new columns automatically
-      await sequelize.sync({ alter: true });
+      // Use sync() without alter to avoid "Too many keys" errors on existing tables
+      // For schema changes, use migrations or manual SQL instead
+      await sequelize.sync();
       console.log('✅ Database tables synchronized');
     }
     

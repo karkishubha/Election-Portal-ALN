@@ -10,6 +10,12 @@ import {
   LogOut,
   Menu,
   X,
+  AlertTriangle,
+  Megaphone,
+  Image,
+  Video,
+  FileText,
+  Bell,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,7 +28,12 @@ interface AdminLayoutProps {
 const navItems = [
   { label: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Voter Education", path: "/admin/voter-education", icon: BookOpen },
-  { label: "Election Integrity", path: "/admin/election-integrity", icon: Shield },
+  { label: "Infographics", path: "/admin/infographics", icon: Image },
+  { label: "Videos", path: "/admin/videos", icon: Video },
+  { label: "Explainers", path: "/admin/explainers", icon: FileText },
+  { label: "Announcements", path: "/admin/announcements", icon: Bell },
+  { label: "Violations", path: "/admin/violations", icon: AlertTriangle },
+  { label: "Misinformation", path: "/admin/misinformation", icon: Megaphone },
   { label: "Newsletters", path: "/admin/newsletters", icon: Newspaper },
   { label: "Political Parties", path: "/admin/political-parties", icon: Users },
 ];

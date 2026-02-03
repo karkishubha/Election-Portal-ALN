@@ -24,6 +24,7 @@ import {
 import {
   useAdminElectionIntegrity,
   useCreateElectionIntegrity,
+  useUpdateElectionIntegrity,
   useDeleteElectionIntegrity,
   useToggleElectionIntegrityPublish,
 } from "@/hooks/useQueries";
@@ -31,6 +32,7 @@ import { uploadApi } from "@/lib/api";
 
 const categories = [
   { value: "code_of_conduct", label: "Code of Conduct" },
+  { value: "violations", label: "Violations" },
   { value: "misinformation", label: "Misinformation" },
   { value: "transparency", label: "Transparency" },
   { value: "observer_guide", label: "Observer Guide" },
@@ -42,6 +44,8 @@ const categories = [
 const AdminElectionIntegrity = () => {
   const [page, setPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingResource, setEditingResource] = useState<any>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [newResource, setNewResource] = useState({
@@ -53,6 +57,7 @@ const AdminElectionIntegrity = () => {
 
   const { data, isLoading, isError, refetch } = useAdminElectionIntegrity(page);
   const createMutation = useCreateElectionIntegrity();
+  const updateMutation = useUpdateElectionIntegrity();
   const deleteMutation = useDeleteElectionIntegrity();
   const togglePublishMutation = useToggleElectionIntegrityPublish();
 
@@ -102,6 +107,50 @@ const AdminElectionIntegrity = () => {
   const deleteResource = (id: number) => {
     if (confirm("Are you sure you want to delete this document?")) {
       deleteMutation.mutate(id);
+    }
+  };
+
+  const handleEditClick = (resource: any) => {
+    setEditingResource({
+      id: resource.id,
+      title: resource.title,
+      description: resource.description,
+      category: resource.category || "other",
+      language: resource.language || "ne",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateResource = async () => {
+    if (!editingResource?.title || !editingResource?.description) return;
+
+    try {
+      setUploading(true);
+      let pdfUrl = editingResource.pdfUrl;
+
+      if (selectedFile) {
+        const uploadResult = await uploadApi.uploadPdf(selectedFile, 'election-integrity');
+        pdfUrl = uploadResult.data.url;
+      }
+
+      await updateMutation.mutateAsync({
+        id: editingResource.id,
+        data: {
+          title: editingResource.title,
+          description: editingResource.description,
+          category: editingResource.category,
+          language: editingResource.language,
+          ...(pdfUrl && { pdfUrl }),
+        },
+      });
+
+      setEditingResource(null);
+      setSelectedFile(null);
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to update resource:", error);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -227,6 +276,98 @@ const AdminElectionIntegrity = () => {
                 </div>
               </DialogContent>
             </Dialog>
+
+            {/* Edit Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent className="bg-card">
+                <DialogHeader>
+                  <DialogTitle>Edit Document</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-title">Title</Label>
+                    <Input
+                      id="edit-title"
+                      placeholder="Document title"
+                      value={editingResource?.title || ""}
+                      onChange={(e) =>
+                        setEditingResource((prev: any) => ({ ...prev, title: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-description">Description</Label>
+                    <Textarea
+                      id="edit-description"
+                      placeholder="Brief description"
+                      value={editingResource?.description || ""}
+                      onChange={(e) =>
+                        setEditingResource((prev: any) => ({ ...prev, description: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Category</Label>
+                    <Select
+                      value={editingResource?.category || "other"}
+                      onValueChange={(value) =>
+                        setEditingResource((prev: any) => ({ ...prev, category: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.value} value={cat.value}>
+                            {cat.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Language</Label>
+                    <Select
+                      value={editingResource?.language || "ne"}
+                      onValueChange={(value: "en" | "ne" | "other") =>
+                        setEditingResource((prev: any) => ({ ...prev, language: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ne">Nepali</SelectItem>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Upload New PDF (optional)</Label>
+                    <Input type="file" accept=".pdf" onChange={handleFileChange} />
+                    {selectedFile && (
+                      <p className="text-sm text-muted-foreground">Selected: {selectedFile.name}</p>
+                    )}
+                  </div>
+                  <Button
+                    className="w-full"
+                    onClick={handleUpdateResource}
+                    disabled={uploading || updateMutation.isPending}
+                  >
+                    {uploading || updateMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      "Update Document"
+                    )}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </motion.div>
 
@@ -295,7 +436,7 @@ const AdminElectionIntegrity = () => {
                         </td>
                         <td className="p-4">
                           <div className="flex items-center justify-end gap-2">
-                            <Button size="icon" variant="ghost"><Edit2 className="w-4 h-4" /></Button>
+                            <Button size="icon" variant="ghost" onClick={() => handleEditClick(resource)}><Edit2 className="w-4 h-4" /></Button>
                             <Button
                               size="icon"
                               variant="ghost"

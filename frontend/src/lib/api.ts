@@ -151,6 +151,73 @@ export interface ElectionIntegrity {
   updatedAt: string;
 }
 
+export interface Violation {
+  id: number;
+  title: string;
+  description: string;
+  pdfUrl: string;
+  language: 'en' | 'ne' | 'other';
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Misinformation {
+  id: number;
+  title: string;
+  description: string;
+  pdfUrl: string;
+  language: 'en' | 'ne' | 'other';
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Infographic {
+  id: number;
+  title: string;
+  description: string;
+  resourceUrl: string;
+  language: 'en' | 'ne' | 'other';
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VideoResource {
+  id: number;
+  title: string;
+  description: string;
+  resourceUrl: string;
+  language: 'en' | 'ne' | 'other';
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Explainer {
+  id: number;
+  title: string;
+  description: string;
+  resourceUrl: string;
+  language: 'en' | 'ne' | 'other';
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Announcement {
+  id: number;
+  title: string;
+  date: string; // ISO date string
+  source: string;
+  link: string;
+  priority: 'high' | 'medium' | 'low';
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Newsletter {
   id: number;
   title: string;
@@ -174,6 +241,8 @@ export interface PoliticalParty {
   partySymbolUrl?: string;
   officialWebsite?: string;
   manifestoPdfUrl?: string;
+  manifestoPdfFilename?: string;
+  hasManifestoPdf?: boolean;
   prListPdfUrl?: string;
   description?: string;
   displayOrder: number;
@@ -409,6 +478,294 @@ export const newslettersApi = {
   },
 };
 
+// ============ VIOLATIONS API ============
+export const violationsApi = {
+  // Public
+  getAll: async (page = 1, limit = 10, language?: string): Promise<PaginatedResponse<Violation>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (language) params.append('language', language);
+    return apiFetch(`/violations?${params}`);
+  },
+
+  getById: async (id: number): Promise<ApiResponse<Violation>> => {
+    return apiFetch(`/violations/${id}`);
+  },
+
+  // Admin
+  adminGetAll: async (page = 1, limit = 10, filters?: { language?: string; published?: boolean }): Promise<PaginatedResponse<Violation>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (filters?.language) params.append('language', filters.language);
+    if (filters?.published !== undefined) params.append('published', String(filters.published));
+    return apiFetch(`/admin/violations?${params}`);
+  },
+
+  create: async (data: Partial<Violation>): Promise<ApiResponse<Violation>> => {
+    return apiFetch('/admin/violations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  update: async (id: number, data: Partial<Violation>): Promise<ApiResponse<Violation>> => {
+    return apiFetch(`/admin/violations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  delete: async (id: number): Promise<ApiResponse<null>> => {
+    return apiFetch(`/admin/violations/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  togglePublish: async (id: number): Promise<ApiResponse<Violation>> => {
+    return apiFetch(`/admin/violations/${id}/publish`, {
+      method: 'PATCH',
+    });
+  },
+};
+
+// ============ MISINFORMATION API ============
+export const misinformationApi = {
+  // Public
+  getAll: async (page = 1, limit = 10, language?: string): Promise<PaginatedResponse<Misinformation>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (language) params.append('language', language);
+    return apiFetch(`/misinformation?${params}`);
+  },
+
+  getById: async (id: number): Promise<ApiResponse<Misinformation>> => {
+    return apiFetch(`/misinformation/${id}`);
+  },
+
+  // Admin
+  adminGetAll: async (page = 1, limit = 10, filters?: { language?: string; published?: boolean }): Promise<PaginatedResponse<Misinformation>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (filters?.language) params.append('language', filters.language);
+    if (filters?.published !== undefined) params.append('published', String(filters.published));
+    return apiFetch(`/admin/misinformation?${params}`);
+  },
+
+  create: async (data: Partial<Misinformation>): Promise<ApiResponse<Misinformation>> => {
+    return apiFetch('/admin/misinformation', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  update: async (id: number, data: Partial<Misinformation>): Promise<ApiResponse<Misinformation>> => {
+    return apiFetch(`/admin/misinformation/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  delete: async (id: number): Promise<ApiResponse<null>> => {
+    return apiFetch(`/admin/misinformation/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  togglePublish: async (id: number): Promise<ApiResponse<Misinformation>> => {
+    return apiFetch(`/admin/misinformation/${id}/publish`, {
+      method: 'PATCH',
+    });
+  },
+};
+
+// ============ INFOGRAPHICS API ============
+export const infographicsApi = {
+  // Public
+  getAll: async (page = 1, limit = 10, language?: string): Promise<PaginatedResponse<Infographic>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (language) params.append('language', language);
+    return apiFetch(`/infographics?${params}`);
+  },
+
+  getById: async (id: number): Promise<ApiResponse<Infographic>> => {
+    return apiFetch(`/infographics/${id}`);
+  },
+
+  // Admin
+  adminGetAll: async (page = 1, limit = 10, filters?: { language?: string; published?: boolean }): Promise<PaginatedResponse<Infographic>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (filters?.language) params.append('language', filters.language);
+    if (filters?.published !== undefined) params.append('published', String(filters.published));
+    return apiFetch(`/admin/infographics?${params}`);
+  },
+
+  create: async (data: Partial<Infographic>): Promise<ApiResponse<Infographic>> => {
+    return apiFetch('/admin/infographics', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  update: async (id: number, data: Partial<Infographic>): Promise<ApiResponse<Infographic>> => {
+    return apiFetch(`/admin/infographics/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  delete: async (id: number): Promise<ApiResponse<null>> => {
+    return apiFetch(`/admin/infographics/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  togglePublish: async (id: number): Promise<ApiResponse<Infographic>> => {
+    return apiFetch(`/admin/infographics/${id}/publish`, {
+      method: 'PATCH',
+    });
+  },
+};
+
+// ============ VIDEOS API ============
+export const videosApi = {
+  // Public
+  getAll: async (page = 1, limit = 10, language?: string): Promise<PaginatedResponse<VideoResource>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (language) params.append('language', language);
+    return apiFetch(`/videos?${params}`);
+  },
+
+  getById: async (id: number): Promise<ApiResponse<VideoResource>> => {
+    return apiFetch(`/videos/${id}`);
+  },
+
+  // Admin
+  adminGetAll: async (page = 1, limit = 10, filters?: { language?: string; published?: boolean }): Promise<PaginatedResponse<VideoResource>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (filters?.language) params.append('language', filters.language);
+    if (filters?.published !== undefined) params.append('published', String(filters.published));
+    return apiFetch(`/admin/videos?${params}`);
+  },
+
+  create: async (data: Partial<VideoResource>): Promise<ApiResponse<VideoResource>> => {
+    return apiFetch('/admin/videos', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  update: async (id: number, data: Partial<VideoResource>): Promise<ApiResponse<VideoResource>> => {
+    return apiFetch(`/admin/videos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  delete: async (id: number): Promise<ApiResponse<null>> => {
+    return apiFetch(`/admin/videos/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  togglePublish: async (id: number): Promise<ApiResponse<VideoResource>> => {
+    return apiFetch(`/admin/videos/${id}/publish`, {
+      method: 'PATCH',
+    });
+  },
+};
+
+// ============ EXPLAINERS API ============
+export const explainersApi = {
+  // Public
+  getAll: async (page = 1, limit = 10, language?: string): Promise<PaginatedResponse<Explainer>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (language) params.append('language', language);
+    return apiFetch(`/explainers?${params}`);
+  },
+
+  getById: async (id: number): Promise<ApiResponse<Explainer>> => {
+    return apiFetch(`/explainers/${id}`);
+  },
+
+  // Admin
+  adminGetAll: async (page = 1, limit = 10, filters?: { language?: string; published?: boolean }): Promise<PaginatedResponse<Explainer>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (filters?.language) params.append('language', filters.language);
+    if (filters?.published !== undefined) params.append('published', String(filters.published));
+    return apiFetch(`/admin/explainers?${params}`);
+  },
+
+  create: async (data: Partial<Explainer>): Promise<ApiResponse<Explainer>> => {
+    return apiFetch('/admin/explainers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  update: async (id: number, data: Partial<Explainer>): Promise<ApiResponse<Explainer>> => {
+    return apiFetch(`/admin/explainers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  delete: async (id: number): Promise<ApiResponse<null>> => {
+    return apiFetch(`/admin/explainers/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  togglePublish: async (id: number): Promise<ApiResponse<Explainer>> => {
+    return apiFetch(`/admin/explainers/${id}/publish`, {
+      method: 'PATCH',
+    });
+  },
+};
+
+// ============ OFFICIAL ANNOUNCEMENTS API ============
+export const announcementsApi = {
+  // Public
+  getAll: async (page = 1, limit = 10, filters?: { priority?: 'high' | 'medium' | 'low' }): Promise<PaginatedResponse<Announcement>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (filters?.priority) params.append('priority', filters.priority);
+    return apiFetch(`/announcements?${params}`);
+  },
+
+  getById: async (id: number): Promise<ApiResponse<Announcement>> => {
+    return apiFetch(`/announcements/${id}`);
+  },
+
+  // Admin
+  adminGetAll: async (page = 1, limit = 10, filters?: { priority?: 'high' | 'medium' | 'low'; published?: boolean }): Promise<PaginatedResponse<Announcement>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (filters?.priority) params.append('priority', filters.priority);
+    if (filters?.published !== undefined) params.append('published', String(filters.published));
+    return apiFetch(`/admin/announcements?${params}`);
+  },
+
+  create: async (data: Partial<Announcement>): Promise<ApiResponse<Announcement>> => {
+    return apiFetch('/admin/announcements', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  update: async (id: number, data: Partial<Announcement>): Promise<ApiResponse<Announcement>> => {
+    return apiFetch(`/admin/announcements/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  delete: async (id: number): Promise<ApiResponse<null>> => {
+    return apiFetch(`/admin/announcements/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  togglePublish: async (id: number): Promise<ApiResponse<Announcement>> => {
+    return apiFetch(`/admin/announcements/${id}/publish`, {
+      method: 'PATCH',
+    });
+  },
+};
+
 // ============ POLITICAL PARTIES API ============
 export const partiesApi = {
   // Public
@@ -452,6 +809,32 @@ export const partiesApi = {
     return apiFetch(`/admin/parties/${id}/publish`, {
       method: 'PATCH',
     });
+  },
+
+  // Upload manifesto PDF to database
+  uploadManifesto: async (id: number, file: File): Promise<ApiResponse<{ message: string; filename: string }>> => {
+    const token = getToken();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/admin/parties/${id}/manifesto`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Upload failed');
+    }
+    return data;
+  },
+
+  // Get manifesto PDF URL (for viewing)
+  getManifestoUrl: (id: number): string => {
+    return `${API_BASE_URL}/parties/${id}/manifesto`;
   },
 };
 

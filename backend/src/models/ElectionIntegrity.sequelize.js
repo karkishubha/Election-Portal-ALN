@@ -37,6 +37,7 @@ const ElectionIntegrity = sequelize.define('ElectionIntegrity', {
   category: {
     type: DataTypes.ENUM(
       'code_of_conduct',
+      'violations',
       'misinformation',
       'transparency',
       'observer_guide',

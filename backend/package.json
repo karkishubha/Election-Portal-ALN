@@ -7,6 +7,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed:admin": "node src/scripts/seedAdmin.js",
+    "seed:parties": "node src/scripts/seedPoliticalPartiesFromCandidates.js",
     "db:setup": "node setup-database.js",
     "db:sync": "node src/scripts/syncDatabase.js",
     "logbook:pdf": "node src/scripts/generateInternshipLogbookPdf.js"

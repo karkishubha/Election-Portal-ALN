@@ -29,14 +29,22 @@ const getAll = async (req, res) => {
 
     const { count, rows } = await PoliticalParty.findAndCountAll({
       where,
+      attributes: { exclude: ['manifestoPdfData'] }, // Don't send binary data in list
       order: [['displayOrder', 'ASC'], ['partyName', 'ASC']],
       offset: skip,
       limit,
     });
 
+    // Add hasManifestoPdf flag to each party
+    const partiesWithFlag = rows.map(party => {
+      const partyData = party.toJSON();
+      partyData.hasManifestoPdf = !!party.manifestoPdfFilename;
+      return partyData;
+    });
+
     return paginatedResponse(
       res,
-      rows,
+      partiesWithFlag,
       buildPaginationMeta(count, page, limit),
       'Political parties retrieved'
     );
@@ -61,14 +69,22 @@ const adminGetAll = async (req, res) => {
 
     const { count, rows } = await PoliticalParty.findAndCountAll({
       where,
+      attributes: { exclude: ['manifestoPdfData'] }, // Don't send binary data in list
       order: [['displayOrder', 'ASC'], ['partyName', 'ASC']],
       offset: skip,
       limit,
     });
 
+    // Add hasManifestoPdf flag to each party
+    const partiesWithFlag = rows.map(party => {
+      const partyData = party.toJSON();
+      partyData.hasManifestoPdf = !!party.manifestoPdfFilename;
+      return partyData;
+    });
+
     return paginatedResponse(
       res,
-      rows,
+      partiesWithFlag,
       buildPaginationMeta(count, page, limit),
       'Political parties retrieved'
     );
@@ -248,6 +264,71 @@ const togglePublish = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Upload manifesto PDF to database
+ * @route   POST /api/admin/parties/:id/manifesto
+ * @access  Private
+ */
+const uploadManifesto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return errorResponse(res, 'No file uploaded', 400);
+    }
+
+    const party = await PoliticalParty.findByPk(req.params.id);
+
+    if (!party) {
+      return errorResponse(res, 'Party not found', 404);
+    }
+
+    // Store the PDF binary data in the database
+    await party.update({
+      manifestoPdfData: req.file.buffer,
+      manifestoPdfFilename: req.file.originalname,
+      updatedBy: req.admin.id,
+    });
+
+    return successResponse(res, { 
+      message: 'Manifesto uploaded successfully',
+      filename: req.file.originalname 
+    }, 'Manifesto uploaded successfully');
+  } catch (error) {
+    console.error('Upload manifesto error:', error);
+    return errorResponse(res, 'Error uploading manifesto', 500);
+  }
+};
+
+/**
+ * @desc    Get manifesto PDF from database
+ * @route   GET /api/parties/:id/manifesto
+ * @access  Public
+ */
+const getManifesto = async (req, res) => {
+  try {
+    const party = await PoliticalParty.findByPk(req.params.id, {
+      attributes: ['id', 'partyName', 'manifestoPdfData', 'manifestoPdfFilename'],
+    });
+
+    if (!party) {
+      return errorResponse(res, 'Party not found', 404);
+    }
+
+    if (!party.manifestoPdfData) {
+      return errorResponse(res, 'No manifesto available for this party', 404);
+    }
+
+    // Set headers for PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${party.manifestoPdfFilename || 'manifesto.pdf'}"`);
+    
+    // Send the binary data
+    return res.send(party.manifestoPdfData);
+  } catch (error) {
+    console.error('Get manifesto error:', error);
+    return errorResponse(res, 'Error retrieving manifesto', 500);
+  }
+};
+
 module.exports = {
   getAll,
   adminGetAll,
@@ -256,4 +337,6 @@ module.exports = {
   update,
   remove,
   togglePublish,
+  uploadManifesto,
+  getManifesto,
 };

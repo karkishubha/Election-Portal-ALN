@@ -230,6 +230,7 @@ const togglePublish = async (req, res) => {
 const getCategories = async (req, res) => {
   const categories = [
     { value: 'code_of_conduct', label: 'Code of Conduct' },
+    { value: 'violations', label: 'Violations' },
     { value: 'misinformation', label: 'Misinformation' },
     { value: 'transparency', label: 'Transparency' },
     { value: 'observer_guide', label: 'Observer Guide' },

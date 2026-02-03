@@ -24,6 +24,7 @@ import {
 import {
   useAdminNewsletters,
   useCreateNewsletter,
+  useUpdateNewsletter,
   useDeleteNewsletter,
   useToggleNewsletterPublish,
 } from "@/hooks/useQueries";
@@ -39,6 +40,8 @@ const sources = [
 const AdminNewsletters = () => {
   const [page, setPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingNewsletter, setEditingNewsletter] = useState<any>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [newNewsletter, setNewNewsletter] = useState({
@@ -50,6 +53,7 @@ const AdminNewsletters = () => {
 
   const { data, isLoading, isError, refetch } = useAdminNewsletters(page);
   const createMutation = useCreateNewsletter();
+  const updateMutation = useUpdateNewsletter();
   const deleteMutation = useDeleteNewsletter();
   const togglePublishMutation = useToggleNewsletterPublish();
 
@@ -116,6 +120,51 @@ const AdminNewsletters = () => {
   const deleteNewsletter = (id: number) => {
     if (confirm("Are you sure you want to delete this newsletter?")) {
       deleteMutation.mutate(id);
+    }
+  };
+
+  const handleEditClick = (newsletter: any) => {
+    setEditingNewsletter({
+      id: newsletter.id,
+      title: newsletter.title,
+      summary: newsletter.summary,
+      source: newsletter.source || "ALN_DRN",
+      publishedDate: newsletter.publishedDate?.split('T')[0] || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateNewsletter = async () => {
+    if (!editingNewsletter?.title || !editingNewsletter?.summary) return;
+
+    try {
+      setUploading(true);
+      let pdfData = "";
+      let pdfFileName = "";
+
+      if (selectedFile) {
+        pdfData = await fileToBase64(selectedFile);
+        pdfFileName = selectedFile.name;
+      }
+
+      await updateMutation.mutateAsync({
+        id: editingNewsletter.id,
+        data: {
+          title: editingNewsletter.title,
+          summary: editingNewsletter.summary,
+          source: editingNewsletter.source,
+          publishedDate: editingNewsletter.publishedDate || new Date().toISOString().split('T')[0],
+          ...(pdfData && { pdfData, pdfFileName }),
+        },
+      });
+
+      setEditingNewsletter(null);
+      setSelectedFile(null);
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to update newsletter:", error);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -242,6 +291,91 @@ const AdminNewsletters = () => {
                 </div>
               </DialogContent>
             </Dialog>
+
+            {/* Edit Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent className="bg-card">
+                <DialogHeader>
+                  <DialogTitle>Edit Newsletter</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-title">Title</Label>
+                    <Input
+                      id="edit-title"
+                      placeholder="e.g., Nepal Election Monitor - Issue 13"
+                      value={editingNewsletter?.title || ""}
+                      onChange={(e) =>
+                        setEditingNewsletter((prev: any) => ({ ...prev, title: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-summary">Summary</Label>
+                    <Textarea
+                      id="edit-summary"
+                      placeholder="Brief summary of this issue"
+                      value={editingNewsletter?.summary || ""}
+                      onChange={(e) =>
+                        setEditingNewsletter((prev: any) => ({ ...prev, summary: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Source</Label>
+                    <Select
+                      value={editingNewsletter?.source || "ALN_DRN"}
+                      onValueChange={(value) =>
+                        setEditingNewsletter((prev: any) => ({ ...prev, source: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sources.map((src) => (
+                          <SelectItem key={src.value} value={src.value}>
+                            {src.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-date">Publication Date</Label>
+                    <Input
+                      id="edit-date"
+                      type="date"
+                      value={editingNewsletter?.publishedDate || ""}
+                      onChange={(e) =>
+                        setEditingNewsletter((prev: any) => ({ ...prev, publishedDate: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Upload New PDF (optional)</Label>
+                    <Input type="file" accept=".pdf" onChange={handleFileChange} />
+                    {selectedFile && (
+                      <p className="text-sm text-muted-foreground">Selected: {selectedFile.name}</p>
+                    )}
+                  </div>
+                  <Button
+                    className="w-full"
+                    onClick={handleUpdateNewsletter}
+                    disabled={uploading || updateMutation.isPending}
+                  >
+                    {uploading || updateMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      "Update Newsletter"
+                    )}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </motion.div>
 
@@ -314,7 +448,7 @@ const AdminNewsletters = () => {
                         </td>
                         <td className="p-4">
                           <div className="flex items-center justify-end gap-2">
-                            <Button size="icon" variant="ghost"><Edit2 className="w-4 h-4" /></Button>
+                            <Button size="icon" variant="ghost" onClick={() => handleEditClick(newsletter)}><Edit2 className="w-4 h-4" /></Button>
                             <Button
                               size="icon"
                               variant="ghost"

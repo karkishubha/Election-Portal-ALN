@@ -1,4 +1,4 @@
-import { Users, Plus, Edit2, Trash2, Eye, EyeOff, ExternalLink, Loader2, RefreshCw } from "lucide-react";
+import { Users, Plus, Edit2, Trash2, Eye, EyeOff, ExternalLink, Loader2, RefreshCw, FileText } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,39 +18,34 @@ import {
   useAdminPoliticalParties,
   useCreatePoliticalParty,
   useDeletePoliticalParty,
+  useUpdatePoliticalParty,
   useTogglePoliticalPartyPublish,
 } from "@/hooks/useQueries";
-import { uploadApi } from "@/lib/api";
+import { partiesApi } from "@/lib/api";
+import { toast } from "sonner";
 
 const AdminPoliticalParties = () => {
   const [page, setPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingParty, setEditingParty] = useState<any>(null);
   const [selectedManifesto, setSelectedManifesto] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [newParty, setNewParty] = useState({
-    name: "",
+    partyName: "",
     abbreviation: "",
     description: "",
-    website: "",
-    founded: "",
-    leader: "",
-    headquarters: "",
+    websiteLink: "",
   });
 
   const { data, isLoading, isError, refetch } = useAdminPoliticalParties(page);
   const createMutation = useCreatePoliticalParty();
   const deleteMutation = useDeletePoliticalParty();
+  const updateMutation = useUpdatePoliticalParty();
   const togglePublishMutation = useTogglePoliticalPartyPublish();
 
   const parties = data?.data || [];
   const pagination = data?.pagination;
-
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedLogo(e.target.files[0]);
-    }
-  };
 
   const handleManifestoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -59,43 +54,44 @@ const AdminPoliticalParties = () => {
   };
 
   const handleAddParty = async () => {
-    if (!newParty.name || !newParty.abbreviation) return;
+    if (!newParty.partyName || !newParty.abbreviation) return;
 
     try {
       setUploading(true);
-      let logoUrl = "";
-      let manifestoUrl = "";
 
-      if (selectedLogo) {
-        const uploadResult = await uploadApi.uploadPdf(selectedLogo, 'party-logos');
-        logoUrl = uploadResult.data.url;
-      }
-
-      if (selectedManifesto) {
-        const uploadResult = await uploadApi.uploadPdf(selectedManifesto, 'party-manifestos');
-        manifestoUrl = uploadResult.data.url;
-      }
-
-      await createMutation.mutateAsync({
-        name: newParty.name,
+      // First create the party
+      const result = await createMutation.mutateAsync({
+        partyName: newParty.partyName,
         abbreviation: newParty.abbreviation,
         description: newParty.description || `Political party of Nepal`,
-        logoUrl: logoUrl || "/placeholder-party.png",
-        manifestoUrl: manifestoUrl || undefined,
-        website: newParty.website || undefined,
-        founded: newParty.founded || undefined,
-        leader: newParty.leader || undefined,
-        headquarters: newParty.headquarters || undefined,
+        officialWebsite: newParty.websiteLink || undefined,
       });
 
-      setNewParty({ name: "", abbreviation: "", description: "", website: "", founded: "", leader: "", headquarters: "" });
-      setSelectedLogo(null);
+      // If there's a PDF file, upload it to the database
+      if (selectedManifesto && result.data?.id) {
+        await partiesApi.uploadManifesto(result.data.id, selectedManifesto);
+        toast.success('Manifesto PDF uploaded successfully');
+        refetch(); // Refresh to show updated data
+      }
+
+      setNewParty({ partyName: "", abbreviation: "", description: "", websiteLink: "" });
       setSelectedManifesto(null);
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Failed to create party:", error);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleRowManifestoUpload = async (id: number, file: File) => {
+    try {
+      await partiesApi.uploadManifesto(id, file);
+      toast.success('Manifesto PDF uploaded successfully');
+      refetch();
+    } catch (error) {
+      console.error('Failed to upload manifesto:', error);
+      toast.error('Failed to upload manifesto');
     }
   };
 
@@ -106,6 +102,56 @@ const AdminPoliticalParties = () => {
   const deleteParty = (id: number) => {
     if (confirm("Are you sure you want to delete this political party?")) {
       deleteMutation.mutate(id);
+    }
+  };
+
+  const handleEditClick = (party: any) => {
+    setEditingParty({
+      id: party.id,
+      partyName: party.partyName,
+      abbreviation: party.abbreviation,
+      description: party.description || "",
+      websiteLink: party.officialWebsite || "",
+      hasManifestoPdf: party.hasManifestoPdf || !!party.manifestoPdfFilename,
+      manifestoPdfFilename: party.manifestoPdfFilename || "",
+      partyNameNepali: party.partyNameNepali || "",
+    });
+    setSelectedManifesto(null);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateParty = async () => {
+    if (!editingParty?.partyName) return;
+
+    try {
+      setUploading(true);
+      
+      // Update party data
+      await updateMutation.mutateAsync({
+        id: editingParty.id,
+        data: {
+          partyName: editingParty.partyName,
+          abbreviation: editingParty.abbreviation || undefined,
+          description: editingParty.description,
+          partyNameNepali: editingParty.partyNameNepali || undefined,
+          officialWebsite: editingParty.websiteLink || undefined,
+        },
+      });
+
+      // If a new PDF file is selected, upload it to the database
+      if (selectedManifesto) {
+        await partiesApi.uploadManifesto(editingParty.id, selectedManifesto);
+        toast.success('Manifesto PDF uploaded successfully');
+        refetch(); // Refresh to show updated data
+      }
+
+      setEditingParty(null);
+      setSelectedManifesto(null);
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to update party:", error);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -149,13 +195,13 @@ const AdminPoliticalParties = () => {
                 <div className="space-y-4 pt-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Party Name *</Label>
+                      <Label htmlFor="partyName">Party Name *</Label>
                       <Input
-                        id="name"
+                        id="partyName"
                         placeholder="Full party name"
-                        value={newParty.name}
+                        value={newParty.partyName}
                         onChange={(e) =>
-                          setNewParty((prev) => ({ ...prev, name: e.target.value }))
+                          setNewParty((prev) => ({ ...prev, partyName: e.target.value }))
                         }
                       />
                     </div>
@@ -182,64 +228,20 @@ const AdminPoliticalParties = () => {
                       }
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="leader">Party Leader</Label>
-                      <Input
-                        id="leader"
-                        placeholder="Current party leader"
-                        value={newParty.leader}
-                        onChange={(e) =>
-                          setNewParty((prev) => ({ ...prev, leader: e.target.value }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="founded">Founded Year</Label>
-                      <Input
-                        id="founded"
-                        placeholder="e.g., 1947"
-                        value={newParty.founded}
-                        onChange={(e) =>
-                          setNewParty((prev) => ({ ...prev, founded: e.target.value }))
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="website">Website</Label>
-                      <Input
-                        id="website"
-                        type="url"
-                        placeholder="https://..."
-                        value={newParty.website}
-                        onChange={(e) =>
-                          setNewParty((prev) => ({ ...prev, website: e.target.value }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="headquarters">Headquarters</Label>
-                      <Input
-                        id="headquarters"
-                        placeholder="e.g., Kathmandu"
-                        value={newParty.headquarters}
-                        onChange={(e) =>
-                          setNewParty((prev) => ({ ...prev, headquarters: e.target.value }))
-                        }
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="websiteLink">Party Website Link (URL)</Label>
+                    <Input
+                      id="websiteLink"
+                      type="url"
+                      placeholder="https://partywebsite.com"
+                      value={newParty.websiteLink}
+                      onChange={(e) =>
+                        setNewParty((prev) => ({ ...prev, websiteLink: e.target.value }))
+                      }
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label>Party Logo (Image)</Label>
-                    <Input type="file" accept="image/*" onChange={handleLogoChange} />
-                    {selectedLogo && (
-                      <p className="text-sm text-muted-foreground">Selected: {selectedLogo.name}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Manifesto (PDF)</Label>
+                    <Label>Upload Manifesto (PDF)</Label>
                     <Input type="file" accept=".pdf" onChange={handleManifestoChange} />
                     {selectedManifesto && (
                       <p className="text-sm text-muted-foreground">Selected: {selectedManifesto.name}</p>
@@ -257,6 +259,102 @@ const AdminPoliticalParties = () => {
                       </>
                     ) : (
                       "Add Party"
+                    )}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Edit Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent className="bg-card max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Edit Political Party</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-partyName">Party Name *</Label>
+                      <Input
+                        id="edit-partyName"
+                        placeholder="Full party name"
+                        value={editingParty?.partyName || ""}
+                        onChange={(e) =>
+                          setEditingParty((prev: any) => ({ ...prev, partyName: e.target.value }))
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-abbreviation">Abbreviation *</Label>
+                      <Input
+                        id="edit-abbreviation"
+                        placeholder="e.g., NC, UML"
+                        value={editingParty?.abbreviation || ""}
+                        onChange={(e) =>
+                          setEditingParty((prev: any) => ({ ...prev, abbreviation: e.target.value }))
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-description">Description</Label>
+                    <Textarea
+                      id="edit-description"
+                      placeholder="Brief description of the party"
+                      value={editingParty?.description || ""}
+                      onChange={(e) =>
+                        setEditingParty((prev: any) => ({ ...prev, description: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-partyNameNepali">Party Name (Nepali)</Label>
+                    <Input
+                      id="edit-partyNameNepali"
+                      placeholder="नेपाली नाम"
+                      value={editingParty?.partyNameNepali || ""}
+                      onChange={(e) =>
+                        setEditingParty((prev: any) => ({ ...prev, partyNameNepali: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-websiteLink">Party Website Link (URL)</Label>
+                    <Input
+                      id="edit-websiteLink"
+                      type="url"
+                      placeholder="https://partywebsite.com"
+                      value={editingParty?.websiteLink || ""}
+                      onChange={(e) =>
+                        setEditingParty((prev: any) => ({ ...prev, websiteLink: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Upload Manifesto (PDF) - Stored in Database</Label>
+                    <Input type="file" accept=".pdf" onChange={handleManifestoChange} />
+                    {selectedManifesto && (
+                      <p className="text-sm text-accent">Selected: {selectedManifesto.name} (will upload new PDF)</p>
+                    )}
+                    {!selectedManifesto && editingParty?.hasManifestoPdf && (
+                      <p className="text-xs text-green-600 flex items-center gap-1">
+                        <FileText className="w-3 h-3" />
+                        PDF stored: {editingParty.manifestoPdfFilename || 'manifesto.pdf'}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    className="w-full"
+                    onClick={handleUpdateParty}
+                    disabled={uploading || updateMutation.isPending}
+                  >
+                    {uploading || updateMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      "Update Party"
                     )}
                   </Button>
                 </div>
@@ -290,9 +388,8 @@ const AdminPoliticalParties = () => {
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left p-4 text-sm font-medium text-muted-foreground">Party</th>
-                    <th className="text-center p-4 text-sm font-medium text-muted-foreground hidden md:table-cell">Website</th>
                     <th className="text-center p-4 text-sm font-medium text-muted-foreground hidden lg:table-cell">Manifesto</th>
-                    <th className="text-center p-4 text-sm font-medium text-muted-foreground hidden lg:table-cell">Leader</th>
+                    <th className="text-center p-4 text-sm font-medium text-muted-foreground hidden lg:table-cell">Name (Nepali)</th>
                     <th className="text-center p-4 text-sm font-medium text-muted-foreground">Status</th>
                     <th className="text-right p-4 text-sm font-medium text-muted-foreground">Actions</th>
                   </tr>
@@ -300,7 +397,7 @@ const AdminPoliticalParties = () => {
                 <tbody>
                   {parties.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={5} className="p-8 text-center text-muted-foreground">
                         No political parties found. Add your first party!
                       </td>
                     </tr>
@@ -310,36 +407,47 @@ const AdminPoliticalParties = () => {
                         <td className="p-4">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
-                              {party.logoUrl && party.logoUrl !== "/placeholder-party.png" ? (
-                                <img src={party.logoUrl} alt={party.name} className="w-full h-full object-cover" />
+                              {party.partySymbolUrl ? (
+                                <img src={party.partySymbolUrl} alt={party.partyName} className="w-full h-full object-cover" />
                               ) : (
                                 <span className="text-xs font-semibold text-muted-foreground">{party.abbreviation}</span>
                               )}
                             </div>
                             <div>
-                              <p className="font-medium text-foreground">{party.name}</p>
+                              <p className="font-medium text-foreground">{party.partyName}</p>
                               <p className="text-xs text-muted-foreground">{party.abbreviation}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="p-4 text-center hidden md:table-cell">
-                          {party.website ? (
-                            <a href={party.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline inline-flex items-center gap-1">
-                              <ExternalLink className="w-4 h-4" />
+                        <td className="p-4 text-center hidden lg:table-cell">
+                          {party.hasManifestoPdf || party.manifestoPdfFilename ? (
+                            <a 
+                              href={partiesApi.getManifestoUrl(party.id)} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 inline-flex items-center gap-1"
+                            >
+                              <FileText className="w-3 h-3" /> View PDF
                             </a>
                           ) : (
-                            <span className="text-muted-foreground">-</span>
+                            <div className="flex items-center justify-center gap-2">
+                              <label className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded cursor-pointer hover:bg-muted/80">
+                                Upload PDF
+                                <input
+                                  type="file"
+                                  accept=".pdf"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const f = e.target.files?.[0];
+                                    if (f) handleRowManifestoUpload(party.id, f);
+                                  }}
+                                />
+                              </label>
+                            </div>
                           )}
                         </td>
                         <td className="p-4 text-center hidden lg:table-cell">
-                          {party.manifestoUrl ? (
-                            <span className="text-xs bg-accent/10 text-accent px-2 py-1 rounded">Uploaded</span>
-                          ) : (
-                            <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded">Missing</span>
-                          )}
-                        </td>
-                        <td className="p-4 text-center hidden lg:table-cell">
-                          <span className="text-sm text-muted-foreground">{party.leader || "-"}</span>
+                          <span className="text-sm text-muted-foreground">{party.partyNameNepali || "-"}</span>
                         </td>
                         <td className="p-4">
                           <div className="flex items-center justify-center gap-2">
@@ -357,7 +465,7 @@ const AdminPoliticalParties = () => {
                         </td>
                         <td className="p-4">
                           <div className="flex items-center justify-end gap-2">
-                            <Button size="icon" variant="ghost"><Edit2 className="w-4 h-4" /></Button>
+                            <Button size="icon" variant="ghost" onClick={() => handleEditClick(party)}><Edit2 className="w-4 h-4" /></Button>
                             <Button
                               size="icon"
                               variant="ghost"

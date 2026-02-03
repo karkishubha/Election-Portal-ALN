@@ -22,9 +22,15 @@ import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminVoterEducation from "./pages/admin/AdminVoterEducation";
-import AdminElectionIntegrity from "./pages/admin/AdminElectionIntegrity";
+// Replaced Election Integrity with dedicated sections
+import AdminViolations from "./pages/admin/AdminViolations";
+import AdminMisinformation from "./pages/admin/AdminMisinformation";
 import AdminNewsletters from "./pages/admin/AdminNewsletters";
 import AdminPoliticalParties from "./pages/admin/AdminPoliticalParties";
+import AdminInfographics from "./pages/admin/AdminInfographics";
+import AdminVideos from "./pages/admin/AdminVideos";
+import AdminExplainers from "./pages/admin/AdminExplainers";
+import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +57,12 @@ const App = () => (
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
           <Route path="/admin/voter-education" element={<ProtectedRoute><AdminVoterEducation /></ProtectedRoute>} />
-          <Route path="/admin/election-integrity" element={<ProtectedRoute><AdminElectionIntegrity /></ProtectedRoute>} />
+          <Route path="/admin/violations" element={<ProtectedRoute><AdminViolations /></ProtectedRoute>} />
+          <Route path="/admin/misinformation" element={<ProtectedRoute><AdminMisinformation /></ProtectedRoute>} />
+          <Route path="/admin/infographics" element={<ProtectedRoute><AdminInfographics /></ProtectedRoute>} />
+          <Route path="/admin/videos" element={<ProtectedRoute><AdminVideos /></ProtectedRoute>} />
+          <Route path="/admin/explainers" element={<ProtectedRoute><AdminExplainers /></ProtectedRoute>} />
+          <Route path="/admin/announcements" element={<ProtectedRoute><AdminAnnouncements /></ProtectedRoute>} />
           <Route path="/admin/newsletters" element={<ProtectedRoute><AdminNewsletters /></ProtectedRoute>} />
           <Route path="/admin/political-parties" element={<ProtectedRoute><AdminPoliticalParties /></ProtectedRoute>} />
 

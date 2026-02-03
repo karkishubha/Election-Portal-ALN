@@ -27,10 +27,10 @@ const AdminDashboard = () => {
       path: "/admin/voter-education" 
     },
     { 
-      label: "Integrity Documents", 
+      label: "Violations", 
       value: stats?.electionIntegrity.total || 0, 
       icon: Shield, 
-      path: "/admin/election-integrity" 
+      path: "/admin/violations" 
     },
     { 
       label: "Newsletters Published", 
@@ -112,11 +112,11 @@ const AdminDashboard = () => {
               Quick Actions
             </h2>
             <div className="space-y-2">
-              {[
+              {[ 
                 { label: "Add Voter Education Resource", path: "/admin/voter-education", icon: BookOpen },
                 { label: "Upload Newsletter", path: "/admin/newsletters", icon: Newspaper },
                 { label: "Add Political Party", path: "/admin/political-parties", icon: Users },
-                { label: "Add Integrity Document", path: "/admin/election-integrity", icon: Shield },
+                { label: "Add Violation", path: "/admin/violations", icon: Shield },
               ].map((action) => (
                 <Link
                   key={action.label}

@@ -836,6 +836,18 @@ export const partiesApi = {
   getManifestoUrl: (id: number): string => {
     return `${API_BASE_URL}/parties/${id}/manifesto`;
   },
+
+  // Get manifesto PDF as base64 data (for embedded viewer)
+  getManifestoData: async (id: number): Promise<ApiResponse<{ id: number; partyName: string; partyNameNepali?: string; pdfData: string; pdfFileName: string }>> => {
+    return apiFetch(`/parties/${id}/manifesto/data`);
+  },
+
+  // Delete manifesto PDF from database
+  deleteManifesto: async (id: number): Promise<ApiResponse<null>> => {
+    return apiFetch(`/admin/parties/${id}/manifesto`, {
+      method: 'DELETE',
+    });
+  },
 };
 
 // ============ FILE UPLOAD API ============

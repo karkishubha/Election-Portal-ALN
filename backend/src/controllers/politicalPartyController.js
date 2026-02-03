@@ -299,7 +299,7 @@ const uploadManifesto = async (req, res) => {
 };
 
 /**
- * @desc    Get manifesto PDF from database
+ * @desc    Get manifesto PDF from database (raw binary)
  * @route   GET /api/parties/:id/manifesto
  * @access  Public
  */
@@ -329,6 +329,72 @@ const getManifesto = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get manifesto PDF as base64 JSON (for embedded viewer)
+ * @route   GET /api/parties/:id/manifesto/data
+ * @access  Public
+ */
+const getManifestoData = async (req, res) => {
+  try {
+    const party = await PoliticalParty.findByPk(req.params.id, {
+      attributes: ['id', 'partyName', 'partyNameNepali', 'manifestoPdfData', 'manifestoPdfFilename'],
+    });
+
+    if (!party) {
+      return errorResponse(res, 'Party not found', 404);
+    }
+
+    if (!party.manifestoPdfData) {
+      return errorResponse(res, 'No manifesto available for this party', 404);
+    }
+
+    // Convert binary to base64
+    const pdfBase64 = party.manifestoPdfData.toString('base64');
+
+    return successResponse(res, {
+      id: party.id,
+      partyName: party.partyName,
+      partyNameNepali: party.partyNameNepali,
+      pdfData: pdfBase64,
+      pdfFileName: party.manifestoPdfFilename,
+    }, 'Manifesto data retrieved');
+  } catch (error) {
+    console.error('Get manifesto data error:', error);
+    return errorResponse(res, 'Error retrieving manifesto data', 500);
+  }
+};
+
+/**
+ * @desc    Delete manifesto PDF from database
+ * @route   DELETE /api/admin/parties/:id/manifesto
+ * @access  Private
+ */
+const deleteManifesto = async (req, res) => {
+  try {
+    const party = await PoliticalParty.findByPk(req.params.id);
+
+    if (!party) {
+      return errorResponse(res, 'Party not found', 404);
+    }
+
+    if (!party.manifestoPdfData && !party.manifestoPdfFilename) {
+      return errorResponse(res, 'No manifesto to delete', 404);
+    }
+
+    // Clear the manifesto data
+    await party.update({
+      manifestoPdfData: null,
+      manifestoPdfFilename: null,
+      updatedBy: req.admin.id,
+    });
+
+    return successResponse(res, null, 'Manifesto deleted successfully');
+  } catch (error) {
+    console.error('Delete manifesto error:', error);
+    return errorResponse(res, 'Error deleting manifesto', 500);
+  }
+};
+
 module.exports = {
   getAll,
   adminGetAll,
@@ -339,4 +405,6 @@ module.exports = {
   togglePublish,
   uploadManifesto,
   getManifesto,
+  getManifestoData,
+  deleteManifesto,
 };

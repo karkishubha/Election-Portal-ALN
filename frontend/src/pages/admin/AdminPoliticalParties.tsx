@@ -95,6 +95,25 @@ const AdminPoliticalParties = () => {
     }
   };
 
+  const handleDeleteManifesto = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this manifesto PDF?")) return;
+    
+    try {
+      await partiesApi.deleteManifesto(id);
+      toast.success('Manifesto PDF deleted successfully');
+      // Update the editing party state to reflect the deletion
+      setEditingParty((prev: any) => ({
+        ...prev,
+        hasManifestoPdf: false,
+        manifestoPdfFilename: null,
+      }));
+      refetch();
+    } catch (error) {
+      console.error('Failed to delete manifesto:', error);
+      toast.error('Failed to delete manifesto');
+    }
+  };
+
   const togglePublish = (id: number) => {
     togglePublishMutation.mutate(id);
   };
@@ -337,10 +356,20 @@ const AdminPoliticalParties = () => {
                       <p className="text-sm text-accent">Selected: {selectedManifesto.name} (will upload new PDF)</p>
                     )}
                     {!selectedManifesto && editingParty?.hasManifestoPdf && (
-                      <p className="text-xs text-green-600 flex items-center gap-1">
-                        <FileText className="w-3 h-3" />
-                        PDF stored: {editingParty.manifestoPdfFilename || 'manifesto.pdf'}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-green-600 flex items-center gap-1">
+                          <FileText className="w-3 h-3" />
+                          PDF stored: {editingParty.manifestoPdfFilename || 'manifesto.pdf'}
+                        </p>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteManifesto(editingParty.id)}
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Delete PDF
+                        </Button>
+                      </div>
                     )}
                   </div>
                   <Button

@@ -40,6 +40,7 @@ const upload = multer({
 router.get('/', politicalPartyController.getAll);
 router.get('/:id', politicalPartyController.getById);
 router.get('/:id/manifesto', politicalPartyController.getManifesto);
+router.get('/:id/manifesto/data', politicalPartyController.getManifestoData);
 
 module.exports = router;
 
@@ -52,5 +53,6 @@ adminRouter.put('/:id', protect, politicalPartyController.update);
 adminRouter.delete('/:id', protect, politicalPartyController.remove);
 adminRouter.patch('/:id/publish', protect, politicalPartyController.togglePublish);
 adminRouter.post('/:id/manifesto', protect, upload.single('file'), politicalPartyController.uploadManifesto);
+adminRouter.delete('/:id/manifesto', protect, politicalPartyController.deleteManifesto);
 
 module.exports.adminRouter = adminRouter;

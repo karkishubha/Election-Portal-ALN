@@ -857,6 +857,14 @@ export const usePoliticalPartyDetail = (id: number) => {
   });
 };
 
+export const usePartyManifestoData = (id: number) => {
+  return useQuery({
+    queryKey: ['party-manifesto', id],
+    queryFn: () => partiesApi.getManifestoData(id),
+    enabled: !!id,
+  });
+};
+
 export const useAdminPoliticalParties = (page = 1, filters?: { published?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.parties.admin(page, filters),

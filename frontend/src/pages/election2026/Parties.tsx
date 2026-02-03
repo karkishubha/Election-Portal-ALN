@@ -1,18 +1,12 @@
 import { motion } from "framer-motion";
-import { Search, Users, Download, Clipboard, FileText, ExternalLink, X } from "lucide-react";
+import { Search, Users, FileText, ExternalLink, Loader2, Download, Clipboard } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useCandidatesData } from "@/hooks/useCandidates";
-import { usePoliticalParties } from "@/hooks/useQueries";
-import { partiesApi } from "@/lib/api";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { usePoliticalParties, usePartyManifestoData } from "@/hooks/useQueries";
+import PdfViewer from "@/components/shared/PdfViewer";
 
 interface PartyStats {
   name: string;
@@ -28,14 +22,25 @@ interface PartyStats {
 const Election2026Parties = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
-  const [selectedPdf, setSelectedPdf] = useState<{ url: string; partyName: string } | null>(null);
+  const [selectedPartyId, setSelectedPartyId] = useState<number | null>(null);
+  const [selectedPartyName, setSelectedPartyName] = useState<string>("");
   const { candidates, isLoading, error } = useCandidatesData();
   const { data: partiesResp } = usePoliticalParties(1);
   
+  // Fetch manifesto data when a party is selected
+  const { data: manifestoData, isLoading: manifestoLoading } = usePartyManifestoData(selectedPartyId || 0);
+  const manifesto = manifestoData?.data;
+  
   const openPdfViewer = (partyId: number, partyName: string) => {
-    const url = partiesApi.getManifestoUrl(partyId);
-    setSelectedPdf({ url, partyName });
+    setSelectedPartyId(partyId);
+    setSelectedPartyName(partyName);
     setPdfViewerOpen(true);
+  };
+  
+  const closePdfViewer = () => {
+    setPdfViewerOpen(false);
+    setSelectedPartyId(null);
+    setSelectedPartyName("");
   };
   
   const getNameClass = (name: string) => {
@@ -319,53 +324,24 @@ const Election2026Parties = () => {
         </div>
       )}
 
-      {/* PDF Viewer Dialog */}
-      <Dialog open={pdfViewerOpen} onOpenChange={setPdfViewerOpen}>
-        <DialogContent className="max-w-5xl h-[85vh] p-0">
-          <DialogHeader className="p-4 pb-2 border-b">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                {selectedPdf?.partyName} - Manifesto
-              </DialogTitle>
-              <a 
-                href={selectedPdf?.url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-sm text-accent hover:underline flex items-center gap-1 mr-8"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Open in new tab
-              </a>
-            </div>
-          </DialogHeader>
-          <div className="flex-1 h-full p-2">
-            {selectedPdf && (
-              selectedPdf.url.toLowerCase().endsWith('.pdf') ? (
-                <iframe
-                  src={selectedPdf.url}
-                  className="w-full h-[calc(85vh-80px)] rounded border"
-                  title={`${selectedPdf.partyName} Manifesto`}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-[calc(85vh-80px)] bg-muted/50 rounded border">
-                  <FileText className="w-16 h-16 text-muted-foreground mb-4" />
-                  <p className="text-lg font-medium mb-2">External Link</p>
-                  <p className="text-muted-foreground text-center mb-4 px-4">
-                    This manifesto is hosted on an external website and cannot be displayed here.
-                  </p>
-                  <Button asChild>
-                    <a href={selectedPdf.url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Open Manifesto Website
-                    </a>
-                  </Button>
-                </div>
-              )
-            )}
+      {/* PDF Viewer Modal */}
+      <PdfViewer
+        isOpen={pdfViewerOpen}
+        onClose={closePdfViewer}
+        pdfData={manifesto?.pdfData}
+        title={`${selectedPartyName} - Manifesto`}
+        fileName={manifesto?.pdfFileName}
+      />
+
+      {/* Loading overlay when fetching PDF */}
+      {manifestoLoading && pdfViewerOpen && (
+        <div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50">
+          <div className="flex items-center gap-3">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span>Loading PDF...</span>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </motion.div>
   );
 };

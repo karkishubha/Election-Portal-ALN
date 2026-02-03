@@ -79,9 +79,9 @@ const Election2026 = () => {
       </section>
 
       {/* Tabs Navigation */}
-      <section className="sticky top-20 z-40 bg-card/95 backdrop-blur-sm border-b">
+      <section className="sticky top-16 md:top-20 z-40 bg-card/95 backdrop-blur-sm border-b">
         <div className="civic-container">
-          <div className="flex overflow-x-auto gap-2 py-4 md:justify-center">
+          <div className="flex overflow-x-auto gap-1 sm:gap-2 py-3 sm:py-4 md:justify-center scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -89,10 +89,11 @@ const Election2026 = () => {
                   key={tab.id}
                   variant={activeTab === tab.id ? "default" : "ghost"}
                   onClick={() => handleTabChange(tab.id)}
-                  className="flex items-center gap-2 whitespace-nowrap"
+                  className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-2.5 sm:px-4 h-8 sm:h-10 shrink-0"
                 >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
+                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden xs:inline">{tab.label}</span>
+                  <span className="xs:hidden">{tab.label.split(' ')[0]}</span>
                 </Button>
               );
             })}
@@ -101,15 +102,15 @@ const Election2026 = () => {
       </section>
 
       {/* Tab Content */}
-      <section className="py-12 lg:py-20 bg-background">
-        <div className="civic-container grid lg:grid-cols-3 gap-8">
+      <section className="py-8 sm:py-12 lg:py-20 bg-background">
+        <div className="civic-container grid lg:grid-cols-3 gap-6 lg:gap-8">
           <div className="lg:col-span-2">
             {activeTab === "data" && <Election2026Data />}
             {activeTab === "parties" && <Election2026Parties />}
             {activeTab === "integrity" && <Election2026Integrity />}
             {activeTab === "education" && <Election2026VoterEducation />}
           </div>
-          <div className="hidden lg:block">
+          <div className="lg:block">
             <OfficialAnnouncements />
           </div>
         </div>

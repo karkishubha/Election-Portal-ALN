@@ -98,11 +98,11 @@ export function CandidateDetail({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[85vh] sm:max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto rounded-xl">
         <DialogHeader className="text-left">
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-3 sm:gap-4">
             {/* Large Avatar */}
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-secondary shrink-0 overflow-hidden">
+            <div className="flex h-16 w-16 sm:h-24 sm:w-24 items-center justify-center rounded-full bg-secondary shrink-0 overflow-hidden">
               {!imageError ? (
                 <img 
                   src={candidateImageUrl} 

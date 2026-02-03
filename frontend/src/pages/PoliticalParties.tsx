@@ -36,13 +36,13 @@ const PoliticalParties = () => {
         accentColor="bg-section-parties"
       />
 
-      <section className="py-12 lg:py-16">
+      <section className="py-8 sm:py-12 lg:py-16">
         <div className="civic-container">
           {/* Disclaimer */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-muted/50 rounded-xl border border-border p-4 md:p-6 mb-8"
+            className="bg-muted/50 rounded-xl border border-border p-3 sm:p-4 md:p-6 mb-6 sm:mb-8"
           >
             <p className="text-sm text-muted-foreground text-center">
               <strong>Disclaimer:</strong> Information is provided for voter awareness purposes only. 
@@ -56,20 +56,20 @@ const PoliticalParties = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
             <Input
               type="search"
               placeholder="Search political parties..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-md"
+              className="w-full sm:max-w-md"
             />
           </motion.div>
 
           {/* Party Count */}
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-display text-lg font-semibold text-foreground">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 sm:mb-6">
+            <h3 className="font-display text-base sm:text-lg font-semibold text-foreground">
               Registered Parties
             </h3>
             <span className="text-sm text-muted-foreground">
@@ -95,14 +95,14 @@ const PoliticalParties = () => {
 
           {/* Party List */}
           {!isLoading && !isError && (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {filteredParties.map((party, index) => (
                 <motion.div
                   key={party.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-card rounded-lg border border-border p-4 md:p-5 flex flex-col md:flex-row md:items-center gap-4"
+                  className="bg-card rounded-lg border border-border p-3 sm:p-4 md:p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4"
                 >
                   {/* Symbol */}
                   <div className="flex-shrink-0">
@@ -110,11 +110,11 @@ const PoliticalParties = () => {
                       <img 
                         src={party.partySymbolUrl} 
                         alt={`${party.partyName} symbol`}
-                        className="w-14 h-14 rounded-lg object-contain bg-muted"
+                        className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg object-contain bg-muted"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center">
-                        <span className="text-sm font-semibold text-muted-foreground">
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg bg-muted flex items-center justify-center">
+                        <span className="text-xs sm:text-sm font-semibold text-muted-foreground">
                           {party.abbreviation || party.partyName.substring(0, 3).toUpperCase()}
                         </span>
                       </div>

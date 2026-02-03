@@ -125,14 +125,14 @@ const Candidates = () => {
           </div>
         </div>
         {/* Hero Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
             नेपाल निर्वाचन उम्मेदवार
           </h1>
-          <p className="mt-2 text-lg text-muted-foreground">
+          <p className="mt-1 sm:mt-2 text-base sm:text-lg text-muted-foreground">
             Nepal Election Candidates Dashboard
           </p>
-          <p className="mt-1 text-sm text-muted-foreground max-w-2xl">
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground max-w-2xl">
             जिल्ला, प्रदेश, र पार्टी अनुसार उम्मेदवारहरू खोज्नुहोस् • 
             Explore candidates by district, province, and party
           </p>
@@ -213,7 +213,7 @@ const Candidates = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
             {/* Province Filter */}
             <Select
               value={filters.province || "all"}

@@ -12,13 +12,13 @@ const About = () => {
         icon={<Info className="w-6 h-6" />}
       />
 
-      <section className="py-12 lg:py-16">
+      <section className="py-8 sm:py-12 lg:py-16">
         <div className="civic-container">
           {/* Mission */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-card rounded-xl border border-border p-6 md:p-8 mb-8"
+            className="bg-card rounded-xl border border-border p-4 sm:p-6 md:p-8 mb-6 sm:mb-8"
           >
             <div className="flex items-start gap-4 mb-4">
               <div className="p-3 rounded-lg bg-accent/10">
@@ -37,7 +37,7 @@ const About = () => {
           </motion.div>
 
           {/* Organizations Grid */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
             {/* Accountability Lab Nepal */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -90,9 +90,9 @@ const About = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-muted/30 rounded-xl border border-border p-6 md:p-8"
+            className="bg-muted/30 rounded-xl border border-border p-4 sm:p-6 md:p-8"
           >
-            <h2 className="font-display text-xl font-semibold mb-4">
+            <h2 className="font-display text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
               About This Portal
             </h2>
             <div className="space-y-4 text-muted-foreground">

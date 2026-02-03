@@ -43,7 +43,7 @@ const cards = [
 
 const QuickAccessCards = () => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       {cards.map((card, index) => (
         <motion.div
           key={card.path}
@@ -53,28 +53,28 @@ const QuickAccessCards = () => {
         >
           <Link 
             to={card.path} 
-            className={`group block relative bg-white dark:bg-gray-900 rounded-2xl border-2 border-gray-100 dark:border-gray-800 p-6 h-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${card.hoverBorder}`}
+            className={`group block relative bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl border-2 border-gray-100 dark:border-gray-800 p-4 sm:p-6 h-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${card.hoverBorder}`}
           >
             {/* Gradient accent bar */}
-            <div className={`absolute top-0 left-0 right-0 h-1.5 rounded-t-2xl bg-gradient-to-r ${card.gradient}`} />
+            <div className={`absolute top-0 left-0 right-0 h-1 sm:h-1.5 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-r ${card.gradient}`} />
             
             {/* Icon */}
-            <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg mb-5`}>
-              <card.icon className="w-7 h-7 text-white" strokeWidth={2} />
+            <div className={`inline-flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg mb-3 sm:mb-5`}>
+              <card.icon className="w-5 h-5 sm:w-7 sm:h-7 text-white" strokeWidth={2} />
             </div>
             
             {/* Content */}
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-gray-700 dark:group-hover:text-gray-100 transition-colors">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 group-hover:text-gray-700 dark:group-hover:text-gray-100 transition-colors">
               {card.title}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
+            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4">
               {card.description}
             </p>
             
             {/* Arrow link */}
-            <div className={`inline-flex items-center text-sm font-semibold bg-gradient-to-r ${card.gradient} bg-clip-text text-transparent`}>
+            <div className={`inline-flex items-center text-xs sm:text-sm font-semibold bg-gradient-to-r ${card.gradient} bg-clip-text text-transparent`}>
               Explore
-              <ArrowRight className={`w-4 h-4 ml-1.5 transition-transform duration-300 group-hover:translate-x-1 text-gray-600`} />
+              <ArrowRight className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1 sm:ml-1.5 transition-transform duration-300 group-hover:translate-x-1 text-gray-600`} />
             </div>
           </Link>
         </motion.div>

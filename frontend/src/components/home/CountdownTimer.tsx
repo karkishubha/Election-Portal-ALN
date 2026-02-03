@@ -50,18 +50,18 @@ const CountdownTimer = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="bg-primary rounded-2xl p-6 sm:p-8 lg:p-10 shadow-xl"
+      className="bg-primary rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 lg:p-10 shadow-xl"
     >
-      <div className="text-center mb-6">
-        <h3 className="text-primary-foreground/80 text-sm sm:text-base uppercase tracking-wider mb-2">
+      <div className="text-center mb-4 sm:mb-6">
+        <h3 className="text-primary-foreground/80 text-xs sm:text-sm md:text-base uppercase tracking-wider mb-1 sm:mb-2">
           Days Until Election
         </h3>
-        <p className="text-primary-foreground/60 text-xs sm:text-sm">
+        <p className="text-primary-foreground/60 text-[10px] sm:text-xs md:text-sm">
           Falgun 21, 2082 BS • March 5, 2026
         </p>
       </div>
 
-      <div className="flex justify-center gap-3 sm:gap-4 lg:gap-6">
+      <div className="flex justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6">
         {timeUnits.map((unit, index) => (
           <motion.div
             key={unit.label}

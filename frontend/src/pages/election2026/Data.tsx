@@ -145,7 +145,7 @@ const Election2026Data = () => {
       </div>
 
       {/* Electoral System Overview - Always visible */}
-      <div className="grid grid-cols-3 md:grid-cols-3 gap-4 max-w-lg mx-auto">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-lg mx-auto">
         <StatCard 
           icon={Building2} 
           label="कुल सिट" 
@@ -192,7 +192,7 @@ const Election2026Data = () => {
           ) : fptpProcessed ? (
             <>
               {/* FPTP Stats Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-4">
                 <StatCard icon={Users} label="कुल उम्मेदवार" value={fptpProcessed.total.toLocaleString()} sublabel="FPTP Candidates" />
                 <StatCard icon={Users} label="पुरुष" value={fptpProcessed.male.toLocaleString()} sublabel={`${((fptpProcessed.male / fptpProcessed.total) * 100).toFixed(1)}%`} highlight="blue" />
                 <StatCard icon={Users} label="महिला" value={fptpProcessed.female.toLocaleString()} sublabel={`${((fptpProcessed.female / fptpProcessed.total) * 100).toFixed(1)}%`} highlight="pink" />
@@ -200,12 +200,12 @@ const Election2026Data = () => {
                 <StatCard icon={MapPin} label="जिल्ला" value={fptpProcessed.districtsCount.toString()} sublabel="Districts" />
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Gender Distribution */}
-                <div className="bg-card rounded-xl border p-6">
-                  <h3 className="font-bold text-lg mb-1">लिङ्ग वितरण</h3>
-                  <p className="text-xs text-muted-foreground mb-4">FPTP Gender Distribution</p>
-                  <div className="h-64">
+                <div className="bg-card rounded-xl border p-4 sm:p-6">
+                  <h3 className="font-bold text-base sm:text-lg mb-1">लिङ्ग वितरण</h3>
+                  <p className="text-xs text-muted-foreground mb-3 sm:mb-4">FPTP Gender Distribution</p>
+                  <div className="h-48 sm:h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -230,10 +230,10 @@ const Election2026Data = () => {
                 </div>
 
                 {/* Top Parties */}
-                <div className="bg-card rounded-xl border p-6">
-                  <h3 className="font-bold text-lg mb-1">प्रमुख दलहरू</h3>
-                  <p className="text-xs text-muted-foreground mb-4">Top Parties by Candidates</p>
-                  <div className="h-64">
+                <div className="bg-card rounded-xl border p-4 sm:p-6">
+                  <h3 className="font-bold text-base sm:text-lg mb-1">प्रमुख दलहरू</h3>
+                  <p className="text-xs text-muted-foreground mb-3 sm:mb-4">Top Parties by Candidates</p>
+                  <div className="h-48 sm:h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={fptpProcessed.topParties}
@@ -258,10 +258,10 @@ const Election2026Data = () => {
               </div>
 
               {/* Province Bar Chart */}
-              <div className="bg-card rounded-xl border p-6">
-                <h3 className="font-bold text-lg mb-1">प्रदेश अनुसार उम्मेदवार</h3>
-                <p className="text-xs text-muted-foreground mb-4">FPTP Candidates by Province</p>
-                <div className="h-64">
+              <div className="bg-card rounded-xl border p-4 sm:p-6">
+                <h3 className="font-bold text-base sm:text-lg mb-1">प्रदेश अनुसार उम्मेदवार</h3>
+                <p className="text-xs text-muted-foreground mb-3 sm:mb-4">FPTP Candidates by Province</p>
+                <div className="h-56 sm:h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={fptpProcessed.byProvince} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -281,12 +281,12 @@ const Election2026Data = () => {
               </div>
 
               {/* Qualification & Age Distribution */}
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Qualification */}
-                <div className="bg-card rounded-xl border p-6">
-                  <h3 className="font-bold text-lg mb-1">शैक्षिक योग्यता</h3>
-                  <p className="text-xs text-muted-foreground mb-4">Education Qualification</p>
-                  <div className="h-64">
+                <div className="bg-card rounded-xl border p-4 sm:p-6">
+                  <h3 className="font-bold text-base sm:text-lg mb-1">शैक्षिक योग्यता</h3>
+                  <p className="text-xs text-muted-foreground mb-3 sm:mb-4">Education Qualification</p>
+                  <div className="h-48 sm:h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={Object.entries(fptpProcessed.byQualification).map(([name, value]) => ({ name, value }))}
@@ -304,10 +304,10 @@ const Election2026Data = () => {
                 </div>
 
                 {/* Top Districts */}
-                <div className="bg-card rounded-xl border p-6">
-                  <h3 className="font-bold text-lg mb-1">शीर्ष जिल्लाहरू</h3>
-                  <p className="text-xs text-muted-foreground mb-4">Top 5 Districts by FPTP Candidates</p>
-                  <div className="space-y-3 mt-4">
+                <div className="bg-card rounded-xl border p-4 sm:p-6">
+                  <h3 className="font-bold text-base sm:text-lg mb-1">शीर्ष जिल्लाहरू</h3>
+                  <p className="text-xs text-muted-foreground mb-3 sm:mb-4">Top 5 Districts by FPTP Candidates</p>
+                  <div className="space-y-2 sm:space-y-3 mt-3 sm:mt-4">
                     {fptpProcessed.topDistricts.map((district, index) => (
                       <div key={district.name} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -327,8 +327,8 @@ const Election2026Data = () => {
         </TabsContent>
 
         {/* PR Tab - Static Data */}
-        <TabsContent value="pr" className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <TabsContent value="pr" className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-4">
             <StatCard icon={Users} label="कुल उम्मेदवार" value={PR_DATA.total.toLocaleString()} sublabel="PR Candidates" />
             <StatCard icon={Users} label="पुरुष" value={PR_DATA.male.toLocaleString()} sublabel={`${((PR_DATA.male / PR_DATA.total) * 100).toFixed(1)}%`} highlight="blue" />
             <StatCard icon={Users} label="महिला" value={PR_DATA.female.toLocaleString()} sublabel={`${((PR_DATA.female / PR_DATA.total) * 100).toFixed(1)}% ✅`} highlight="pink" />
@@ -336,12 +336,12 @@ const Election2026Data = () => {
             <StatCard icon={MapPin} label="जिल्ला" value={PR_DATA.districts.toString()} sublabel="Districts" />
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Gender Distribution */}
-            <div className="bg-card rounded-xl border p-6">
-              <h3 className="font-bold text-lg mb-1">लिङ्ग वितरण</h3>
-              <p className="text-xs text-muted-foreground mb-4">PR Gender Distribution - Women Dominate!</p>
-              <div className="h-64">
+            <div className="bg-card rounded-xl border p-4 sm:p-6">
+              <h3 className="font-bold text-base sm:text-lg mb-1">लिङ्ग वितरण</h3>
+              <p className="text-xs text-muted-foreground mb-3 sm:mb-4">PR Gender Distribution - Women Dominate!</p>
+              <div className="h-48 sm:h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -369,10 +369,10 @@ const Election2026Data = () => {
             </div>
 
             {/* Inclusive Group Distribution */}
-            <div className="bg-card rounded-xl border p-6">
-              <h3 className="font-bold text-lg mb-1">समावेशी समूह वितरण</h3>
-              <p className="text-xs text-muted-foreground mb-4">Inclusive Group Distribution</p>
-              <div className="h-64">
+            <div className="bg-card rounded-xl border p-4 sm:p-6">
+              <h3 className="font-bold text-base sm:text-lg mb-1">समावेशी समूह वितरण</h3>
+              <p className="text-xs text-muted-foreground mb-3 sm:mb-4">Inclusive Group Distribution</p>
+              <div className="h-48 sm:h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -397,10 +397,10 @@ const Election2026Data = () => {
           </div>
 
           {/* Female % by Inclusive Group */}
-          <div className="bg-card rounded-xl border p-6">
-            <h3 className="font-bold text-lg mb-1">समूह अनुसार महिला प्रतिशत</h3>
-            <p className="text-xs text-muted-foreground mb-4">Female Percentage by Inclusive Group</p>
-            <div className="h-64">
+          <div className="bg-card rounded-xl border p-4 sm:p-6">
+            <h3 className="font-bold text-base sm:text-lg mb-1">समूह अनुसार महिला प्रतिशत</h3>
+            <p className="text-xs text-muted-foreground mb-3 sm:mb-4">Female Percentage by Inclusive Group</p>
+            <div className="h-48 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={[...PR_DATA.byInclusiveGroup].sort((a, b) => b.femalePercent - a.femalePercent)}
@@ -425,10 +425,10 @@ const Election2026Data = () => {
           </div>
 
           {/* Province Distribution */}
-          <div className="bg-card rounded-xl border p-6">
-            <h3 className="font-bold text-lg mb-1">प्रदेश अनुसार उम्मेदवार</h3>
-            <p className="text-xs text-muted-foreground mb-4">PR Candidates by Province</p>
-            <div className="h-64">
+          <div className="bg-card rounded-xl border p-4 sm:p-6">
+            <h3 className="font-bold text-base sm:text-lg mb-1">प्रदेश अनुसार उम्मेदवार</h3>
+            <p className="text-xs text-muted-foreground mb-3 sm:mb-4">PR Candidates by Province</p>
+            <div className="h-56 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={PR_DATA.byProvince} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -446,11 +446,11 @@ const Election2026Data = () => {
           </div>
 
           {/* Top Districts & Special Categories */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-card rounded-xl border p-6">
-              <h3 className="font-bold text-lg mb-1">शीर्ष जिल्लाहरू</h3>
-              <p className="text-xs text-muted-foreground mb-4">Top 5 Districts by PR Candidates</p>
-              <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <div className="bg-card rounded-xl border p-4 sm:p-6">
+              <h3 className="font-bold text-base sm:text-lg mb-1">शीर्ष जिल्लाहरू</h3>
+              <p className="text-xs text-muted-foreground mb-3 sm:mb-4">Top 5 Districts by PR Candidates</p>
+              <div className="space-y-2 sm:space-y-3">
                 {PR_DATA.topDistricts.map((district, index) => (
                   <div key={district.name} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -465,10 +465,10 @@ const Election2026Data = () => {
               </div>
             </div>
 
-            <div className="bg-card rounded-xl border p-6">
-              <h3 className="font-bold text-lg mb-1">विशेष श्रेणी</h3>
-              <p className="text-xs text-muted-foreground mb-4">Special Categories</p>
-              <div className="space-y-4">
+            <div className="bg-card rounded-xl border p-4 sm:p-6">
+              <h3 className="font-bold text-base sm:text-lg mb-1">विशेष श्रेणी</h3>
+              <p className="text-xs text-muted-foreground mb-3 sm:mb-4">Special Categories</p>
+              <div className="space-y-3 sm:space-y-4">
                 <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -494,9 +494,9 @@ const Election2026Data = () => {
           </div>
 
           {/* Key Takeaways for PR */}
-          <div className="bg-gradient-to-br from-green-500/5 to-emerald-500/5 rounded-xl border p-6">
-            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
+          <div className="bg-gradient-to-br from-green-500/5 to-emerald-500/5 rounded-xl border p-4 sm:p-6">
+            <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
               PR मुख्य निष्कर्षहरू
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">

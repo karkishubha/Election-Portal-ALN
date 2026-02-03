@@ -51,9 +51,9 @@ const Contact = () => {
         icon={<MessageSquare className="w-6 h-6" />}
       />
 
-      <section className="py-12 lg:py-16">
+      <section className="py-8 sm:py-12 lg:py-16">
         <div className="civic-container">
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -97,8 +97,8 @@ const Contact = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <div className="bg-card rounded-xl border border-border p-6 md:p-8">
-                <h2 className="font-display text-xl font-semibold mb-6">
+              <div className="bg-card rounded-xl border border-border p-4 sm:p-6 md:p-8">
+                <h2 className="font-display text-lg sm:text-xl font-semibold mb-4 sm:mb-6">
                   Send a Message
                 </h2>
 

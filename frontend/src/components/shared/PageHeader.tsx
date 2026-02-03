@@ -15,18 +15,18 @@ const PageHeader = ({ title, description, icon, accentColor = "bg-accent" }: Pag
       animate={{ opacity: 1, y: 0 }}
       className="bg-muted/50 border-b border-border"
     >
-      <div className="civic-container py-12 md:py-16">
-        <div className="flex items-start gap-4">
+      <div className="civic-container py-8 sm:py-12 md:py-16">
+        <div className="flex items-start gap-3 sm:gap-4">
           {icon && (
-            <div className={`p-3 rounded-xl ${accentColor} text-white hidden sm:block`}>
+            <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${accentColor} text-white shrink-0`}>
               {icon}
             </div>
           )}
           <div>
-            <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
               {title}
             </h1>
-            <p className="text-muted-foreground text-base md:text-lg max-w-2xl leading-relaxed">
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl leading-relaxed">
               {description}
             </p>
           </div>

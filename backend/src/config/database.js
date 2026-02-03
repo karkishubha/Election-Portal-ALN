@@ -6,21 +6,49 @@
  */
 
 const { Sequelize } = require('sequelize');
+const dns = require('dns');
+
+// Force Node.js to prefer IPv4 addresses globally
+dns.setDefaultResultOrder('ipv4first');
 
 // Check if DATABASE_URL is provided (Supabase/Postgres connection string)
 const isDatabaseUrl = !!process.env.DATABASE_URL;
 
+// Parse DATABASE_URL to extract components for manual configuration
+const parseDbUrl = (url) => {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    return {
+      username: parsed.username,
+      password: decodeURIComponent(parsed.password),
+      host: parsed.hostname,
+      port: parseInt(parsed.port) || 5432,
+      database: parsed.pathname.slice(1), // Remove leading /
+    };
+  } catch (e) {
+    console.error('Failed to parse DATABASE_URL:', e.message);
+    return null;
+  }
+};
+
 // Create Sequelize instance
-const sequelize = isDatabaseUrl
-  ? new Sequelize(process.env.DATABASE_URL, {
+let sequelize;
+
+if (isDatabaseUrl) {
+  const dbConfig = parseDbUrl(process.env.DATABASE_URL);
+  
+  if (dbConfig) {
+    // Use parsed config with explicit IPv4
+    sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
+      host: dbConfig.host,
+      port: dbConfig.port,
       dialect: 'postgres',
       dialectOptions: {
         ssl: {
           require: true,
           rejectUnauthorized: false,
         },
-        // Force IPv4 to avoid IPv6 connection issues on Render
-        family: 4,
       },
       logging: process.env.NODE_ENV === 'development' ? console.log : false,
       pool: {
@@ -31,30 +59,46 @@ const sequelize = isDatabaseUrl
       },
       define: {
         timestamps: true,
-        underscored: true, // Use snake_case for column names
+        underscored: true,
       },
-    })
-  : new Sequelize(
-      process.env.DB_NAME || 'nepal_election_portal',
-      process.env.DB_USER || 'root',
-      process.env.DB_PASSWORD || '',
-      {
-        host: process.env.DB_HOST || 'localhost',
-        port: process.env.DB_PORT || 3306,
-        dialect: 'mysql',
-        logging: process.env.NODE_ENV === 'development' ? console.log : false,
-        pool: {
-          max: 10,
-          min: 0,
-          acquire: 30000,
-          idle: 10000,
+    });
+  } else {
+    // Fallback to direct URL usage
+    sequelize = new Sequelize(process.env.DATABASE_URL, {
+      dialect: 'postgres',
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
         },
-        define: {
-          timestamps: true,
-          underscored: true, // Use snake_case for column names
-        },
-      }
-    );
+      },
+      logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    });
+  }
+} else {
+  // MySQL for local development
+  sequelize = new Sequelize(
+    process.env.DB_NAME || 'nepal_election_portal',
+    process.env.DB_USER || 'root',
+    process.env.DB_PASSWORD || '',
+    {
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 3306,
+      dialect: 'mysql',
+      logging: process.env.NODE_ENV === 'development' ? console.log : false,
+      pool: {
+        max: 10,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+      },
+      define: {
+        timestamps: true,
+        underscored: true,
+      },
+    }
+  );
+}
 
 /**
  * Connect to database (PostgreSQL or MySQL)

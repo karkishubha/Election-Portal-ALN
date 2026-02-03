@@ -109,11 +109,11 @@ const connectDB = async () => {
     const dbType = isDatabaseUrl ? 'PostgreSQL (Supabase)' : 'MySQL';
     console.log(`✅ ${dbType} Connected Successfully`);
     
-    // Sync models in development (use migrations in production)
-    if (process.env.NODE_ENV !== 'production') {
-      // Use sync() without alter to avoid "Too many keys" errors on existing tables
-      // For schema changes, use migrations or manual SQL instead
-      await sequelize.sync();
+    // Sync models - always sync to ensure tables exist
+    // Use alter:true only for initial setup, then remove for production stability
+    const shouldSync = process.env.DB_SYNC === 'true' || process.env.NODE_ENV !== 'production';
+    if (shouldSync) {
+      await sequelize.sync({ alter: process.env.DB_SYNC === 'true' });
       console.log('✅ Database tables synchronized');
     }
     

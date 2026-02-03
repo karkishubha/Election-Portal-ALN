@@ -102,6 +102,56 @@ const startServer = async () => {
       }
     }
 
+    // Auto-seed political parties from Election Commission API if SEED_PARTIES is true
+    if (process.env.SEED_PARTIES === 'true') {
+      const { PoliticalParty } = require('./models');
+      
+      const existingParties = await PoliticalParty.count();
+      
+      if (existingParties === 0) {
+        console.log('🏛️  Seeding political parties from Election Commission API...');
+        
+        try {
+          const CANDIDATES_URL = 'https://result.election.gov.np/JSONFiles/ElectionResultCentral2082.txt';
+          const res = await fetch(CANDIDATES_URL);
+          
+          if (res.ok) {
+            const candidates = await res.json();
+            
+            if (Array.isArray(candidates) && candidates.length > 0) {
+              // Collect unique party names
+              const uniqueParties = new Map();
+              for (const c of candidates) {
+                const nameNep = (c.PoliticalPartyName || '').trim();
+                if (!nameNep || uniqueParties.has(nameNep)) continue;
+                uniqueParties.set(nameNep, {
+                  partyNameNepali: nameNep,
+                  partyName: nameNep,
+                  abbreviation: null,
+                  partySymbolUrl: null,
+                  officialWebsite: null,
+                  manifestoPdfUrl: null,
+                  description: 'Political party of Nepal',
+                  displayOrder: 0,
+                  published: true,
+                });
+              }
+              
+              const partiesToInsert = Array.from(uniqueParties.values());
+              await PoliticalParty.bulkCreate(partiesToInsert, { ignoreDuplicates: true });
+              console.log(`✅ ${partiesToInsert.length} political parties seeded from Election Commission`);
+            }
+          } else {
+            console.log('⚠️  Could not fetch Election Commission data, skipping party seed');
+          }
+        } catch (err) {
+          console.log('⚠️  Party seeding failed:', err.message);
+        }
+      } else {
+        console.log(`ℹ️  Political parties already exist (${existingParties} parties)`);
+      }
+    }
+
     // Start listening
     app.listen(PORT, () => {
       console.log('');

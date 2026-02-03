@@ -191,12 +191,12 @@ const update = async (req, res) => {
 
     await party.update({
       ...(partyName !== undefined && { partyName }),
-      ...(partyNameNepali !== undefined && { partyNameNepali }),
-      ...(abbreviation !== undefined && { abbreviation }),
-      ...(partySymbolUrl !== undefined && { partySymbolUrl }),
-      ...(officialWebsite !== undefined && { officialWebsite }),
-      ...(manifestoPdfUrl !== undefined && { manifestoPdfUrl }),
-      ...(prListPdfUrl !== undefined && { prListPdfUrl }),
+      ...(partyNameNepali !== undefined && { partyNameNepali: partyNameNepali || null }),
+      ...(abbreviation !== undefined && { abbreviation: abbreviation || null }),
+      ...(partySymbolUrl !== undefined && { partySymbolUrl: partySymbolUrl || null }),
+      ...(officialWebsite !== undefined && { officialWebsite: officialWebsite || null }),
+      ...(manifestoPdfUrl !== undefined && { manifestoPdfUrl: manifestoPdfUrl || null }),
+      ...(prListPdfUrl !== undefined && { prListPdfUrl: prListPdfUrl || null }),
       ...(description !== undefined && { description }),
       ...(displayOrder !== undefined && { displayOrder }),
       ...(published !== undefined && { published }),

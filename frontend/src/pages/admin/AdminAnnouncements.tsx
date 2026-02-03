@@ -21,6 +21,7 @@ import {
   useToggleAnnouncementPublish,
 } from "@/hooks/useQueries";
 import { useMemo } from "react";
+import { toast } from "sonner";
 
 const AdminAnnouncements = () => {
   const [page, setPage] = useState(1);
@@ -92,21 +93,28 @@ const AdminAnnouncements = () => {
   };
 
   const handleUpdate = async () => {
-    if (!editingItem?.title || !editingItem?.date || !editingItem?.link || !isValidUrl(editingItem.link)) return;
+    if (!editingItem?.title || !editingItem?.date || !editingItem?.link || !isValidUrl(editingItem.link)) {
+      toast.error('Please fill all required fields with valid data');
+      return;
+    }
 
-    await updateMutation.mutateAsync({
-      id: editingItem.id,
-      data: {
-        title: editingItem.title,
-        date: editingItem.date,
-        source: editingItem.source,
-        link: editingItem.link,
-        priority: editingItem.priority,
-      },
-    });
+    try {
+      await updateMutation.mutateAsync({
+        id: editingItem.id,
+        data: {
+          title: editingItem.title,
+          date: editingItem.date,
+          source: editingItem.source,
+          link: editingItem.link,
+          priority: editingItem.priority,
+        },
+      });
 
-    setEditingItem(null);
-    setIsEditDialogOpen(false);
+      setEditingItem(null);
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error('Update failed:', error);
+    }
   };
 
   return (

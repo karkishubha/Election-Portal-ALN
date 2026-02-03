@@ -153,7 +153,7 @@ const AdminPoliticalParties = () => {
           abbreviation: editingParty.abbreviation || undefined,
           description: editingParty.description,
           partyNameNepali: editingParty.partyNameNepali || undefined,
-          officialWebsite: editingParty.websiteLink || undefined,
+          officialWebsite: editingParty.websiteLink ?? null, // Send null to clear, or the value
         },
       });
 
@@ -339,15 +339,28 @@ const AdminPoliticalParties = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="edit-websiteLink">Party Website Link (URL)</Label>
-                    <Input
-                      id="edit-websiteLink"
-                      type="url"
-                      placeholder="https://partywebsite.com"
-                      value={editingParty?.websiteLink || ""}
-                      onChange={(e) =>
-                        setEditingParty((prev: any) => ({ ...prev, websiteLink: e.target.value }))
-                      }
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        id="edit-websiteLink"
+                        type="url"
+                        placeholder="https://partywebsite.com"
+                        value={editingParty?.websiteLink || ""}
+                        onChange={(e) =>
+                          setEditingParty((prev: any) => ({ ...prev, websiteLink: e.target.value }))
+                        }
+                        className="flex-1"
+                      />
+                      {editingParty?.websiteLink && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setEditingParty((prev: any) => ({ ...prev, websiteLink: "" }))}
+                          title="Clear URL"
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Upload Manifesto (PDF) - Stored in Database</Label>

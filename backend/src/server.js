@@ -75,8 +75,32 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
-    // Connect to MySQL
+    // Connect to database
     await connectDB();
+
+    // Auto-seed admin user if SEED_ADMIN is true and admin doesn't exist
+    if (process.env.SEED_ADMIN === 'true') {
+      const { AdminUser } = require('./models');
+      const bcrypt = require('bcryptjs');
+      
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@votenepal.org';
+      const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@2082';
+      
+      const existingAdmin = await AdminUser.findOne({ where: { email: adminEmail } });
+      
+      if (!existingAdmin) {
+        const hashedPassword = await bcrypt.hash(adminPassword, 12);
+        await AdminUser.create({
+          email: adminEmail,
+          hashedPassword: hashedPassword,
+          role: 'admin',
+          isActive: true,
+        });
+        console.log(`✅ Admin user created: ${adminEmail}`);
+      } else {
+        console.log(`ℹ️  Admin user already exists: ${adminEmail}`);
+      }
+    }
 
     // Start listening
     app.listen(PORT, () => {

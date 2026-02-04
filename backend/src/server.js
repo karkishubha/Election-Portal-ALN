@@ -152,6 +152,18 @@ const startServer = async () => {
       }
     }
 
+    // Auto-sync ECN press releases if SYNC_ECN is true
+    if (process.env.SYNC_ECN === 'true') {
+      try {
+        const { syncECNPressReleases } = require('./services/ecnScraper');
+        console.log('📢 Syncing ECN press releases...');
+        const result = await syncECNPressReleases();
+        console.log(`✅ ECN sync: ${result.added} new, ${result.skipped} existing`);
+      } catch (err) {
+        console.log('⚠️  ECN sync failed:', err.message);
+      }
+    }
+
     // Start listening
     app.listen(PORT, () => {
       console.log('');
@@ -160,7 +172,7 @@ const startServer = async () => {
       console.log('🗳️  ========================================');
       console.log(`📡  Port: ${PORT}`);
       console.log(`🌍  Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🗄️   Database: MySQL`);
+      console.log(`🗄️   Database: PostgreSQL`);
       console.log(`📅  Election: March 5, 2026 (Falgun 21, 2082)`);
       console.log('');
       console.log('📚  API Endpoints:');
@@ -170,9 +182,26 @@ const startServer = async () => {
       console.log('    GET  /api/election-integrity  - Integrity resources');
       console.log('    GET  /api/newsletters         - Newsletters');
       console.log('    GET  /api/parties             - Political parties');
+      console.log('    GET  /api/announcements       - ECN Press Releases');
       console.log('');
       console.log('🔐  Admin routes: /api/admin/*');
       console.log('🗳️  ========================================');
+
+      // Set up periodic ECN sync (every 6 hours)
+      if (process.env.SYNC_ECN === 'true') {
+        const cron = require('node-cron');
+        cron.schedule('0 */6 * * *', async () => {
+          console.log('⏰ Running scheduled ECN sync...');
+          try {
+            const { syncECNPressReleases } = require('./services/ecnScraper');
+            const result = await syncECNPressReleases();
+            console.log(`✅ Scheduled ECN sync: ${result.added} new, ${result.skipped} existing`);
+          } catch (err) {
+            console.error('❌ Scheduled ECN sync failed:', err.message);
+          }
+        });
+        console.log('⏰ ECN auto-sync scheduled (every 6 hours)');
+      }
     });
   } catch (error) {
     console.error('❌ Server startup failed:', error.message);

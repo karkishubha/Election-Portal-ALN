@@ -17,6 +17,7 @@ module.exports = router;
 const adminRouter = express.Router();
 adminRouter.get('/', protect, officialAnnouncementsController.adminGetAll);
 adminRouter.post('/', protect, officialAnnouncementsController.create);
+adminRouter.post('/sync-ecn', protect, officialAnnouncementsController.syncFromECN); // Sync from ECN website
 adminRouter.put('/:id', protect, officialAnnouncementsController.update);
 adminRouter.delete('/:id', protect, officialAnnouncementsController.remove);
 adminRouter.patch('/:id/publish', protect, officialAnnouncementsController.togglePublish);

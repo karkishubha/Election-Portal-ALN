@@ -107,4 +107,18 @@ const togglePublish = async (req, res) => {
   }
 };
 
-module.exports = { getAll, getById, adminGetAll, create, update, remove, togglePublish };
+/**
+ * Sync press releases from Election Commission of Nepal website
+ */
+const syncFromECN = async (req, res) => {
+  try {
+    const { syncECNPressReleases } = require('../services/ecnScraper');
+    const result = await syncECNPressReleases();
+    return successResponse(res, result, `ECN sync complete: ${result.added} new announcements added`);
+  } catch (error) {
+    console.error('ECN sync error:', error);
+    return errorResponse(res, 'Error syncing from ECN: ' + error.message, 500);
+  }
+};
+
+module.exports = { getAll, getById, adminGetAll, create, update, remove, togglePublish, syncFromECN };

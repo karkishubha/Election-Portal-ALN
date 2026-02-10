@@ -1,28 +1,41 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout/Layout";
 import CountdownTimer from "@/components/home/CountdownTimer";
 import QuickAccessCards from "@/components/home/QuickAccessCards";
 import { usePublicStats } from "@/hooks/useQueries";
-import heroImage from "@/assets/hero-civic.png";
+import bgImage from "@/assets/bg.jpeg";
+
+const words = ["Vote", "Voice", "Future"];
 
 const Index = () => {
   const { data: statsData, isLoading: statsLoading } = usePublicStats();
   const stats = statsData?.data;
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % words.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] sm:min-h-[80vh] lg:min-h-[85vh] flex items-center bg-gradient-to-b from-muted/50 to-background overflow-hidden">
+      <section className="relative min-h-[70vh] sm:min-h-[80vh] lg:min-h-[85vh] flex items-center overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <div 
-            className="absolute inset-0 bg-cover bg-center opacity-10"
-            style={{ backgroundImage: `url(${heroImage})` }}
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${bgImage})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-background/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background/80" />
         </div>
 
         <div className="civic-container relative z-10 py-8 sm:py-12 lg:py-20">
@@ -37,9 +50,22 @@ const Index = () => {
                 Nepal General Election 2082 BS
               </span>
               
-              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-4 sm:mb-6">
-                Information for{" "}
-                <span className="text-accent">Informed Voting</span>
+              <h1 className="font-montserrat text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 sm:mb-8 flex items-baseline">
+                <span className="text-foreground">Our</span>
+                <span className="inline-block relative h-[1.2em] overflow-hidden ml-3 sm:ml-4">
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={currentIndex}
+                      initial={{ y: "100%", opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: "-100%", opacity: 0 }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
+                      className="inline-block text-accent"
+                    >
+                      {words[currentIndex]}
+                    </motion.span>
+                  </AnimatePresence>
+                </span>
               </h1>
               
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 sm:mb-8 max-w-xl">

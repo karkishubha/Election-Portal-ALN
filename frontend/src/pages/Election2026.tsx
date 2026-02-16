@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { BarChart3, Users, Shield, BookOpen } from "lucide-react";
+import { BarChart3, Users, Shield, BookOpen, UserCheck } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import OfficialAnnouncements from "@/components/shared/OfficialAnnouncements";
 import Election2026Data from "./election2026/Data";
+import Election2026Candidates from "./election2026/Candidates";
 import Election2026Parties from "./election2026/Parties";
 import Election2026Integrity from "./election2026/Integrity";
 import Election2026VoterEducation from "./election2026/VoterEducation";
 
-type TabType = "data" | "parties" | "integrity" | "education";
+type TabType = "data" | "candidates" | "parties" | "integrity" | "education";
 
 const Election2026 = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,7 +20,7 @@ const Election2026 = () => {
 
   // Update tab when URL changes
   useEffect(() => {
-    if (tabFromUrl && ["data", "parties", "integrity", "education"].includes(tabFromUrl)) {
+    if (tabFromUrl && ["data", "candidates", "parties", "integrity", "education"].includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [tabFromUrl]);
@@ -33,9 +34,15 @@ const Election2026 = () => {
   const tabs = [
     {
       id: "data" as TabType,
-      label: "Election Data",
+      label: "Insights",
       icon: BarChart3,
       description: "Key facts and figures of the 2026 election"
+    },
+    {
+      id: "candidates" as TabType,
+      label: "Candidates",
+      icon: UserCheck,
+      description: "Browse candidates by district, province and party"
     },
     {
       id: "parties" as TabType,
@@ -45,7 +52,7 @@ const Election2026 = () => {
     },
     {
       id: "integrity" as TabType,
-      label: "Election Integrity",
+      label: "Election Monitoring",
       icon: Shield,
       description: "Monitoring and integrity-related content"
     },
@@ -92,8 +99,7 @@ const Election2026 = () => {
                   className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-2.5 sm:px-4 h-8 sm:h-10 shrink-0"
                 >
                   <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden xs:inline">{tab.label}</span>
-                  <span className="xs:hidden">{tab.label.split(' ')[0]}</span>
+                  <span>{tab.label}</span>
                 </Button>
               );
             })}
@@ -106,6 +112,7 @@ const Election2026 = () => {
         <div className="civic-container grid lg:grid-cols-3 gap-6 lg:gap-8">
           <div className="lg:col-span-2">
             {activeTab === "data" && <Election2026Data />}
+            {activeTab === "candidates" && <Election2026Candidates />}
             {activeTab === "parties" && <Election2026Parties />}
             {activeTab === "integrity" && <Election2026Integrity />}
             {activeTab === "education" && <Election2026VoterEducation />}

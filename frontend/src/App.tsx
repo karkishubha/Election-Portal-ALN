@@ -9,7 +9,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 // Public Pages
 import Index from "./pages/Index";
 import Election2026 from "./pages/Election2026";
-import Candidates from "./pages/Candidates";
 import VoterEducation from "./pages/VoterEducation";
 import ElectionIntegrity from "./pages/ElectionIntegrity";
 import ElectionMonitoring from "./pages/ElectionMonitoring";
@@ -45,7 +44,6 @@ const App = () => (
           {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/election-2026" element={<Election2026 />} />
-          <Route path="/candidates" element={<Candidates />} />
           <Route path="/voter-education" element={<VoterEducation />} />
           <Route path="/election-integrity" element={<ElectionIntegrity />} />
           <Route path="/election-monitoring" element={<ElectionMonitoring />} />

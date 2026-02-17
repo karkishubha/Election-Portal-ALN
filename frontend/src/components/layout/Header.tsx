@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const navItems = [
   { label: "Home", path: "/" },
   { label: "Election 2026", path: "/election-2026" },
+  { label: "Knowledge & Tools", path: "/voter-education" },
   { label: "About Us", path: "/about" },
   { label: "Contact", path: "/contact" },
 ];
@@ -45,9 +46,6 @@ const Header = () => {
             <div className="hidden sm:block">
               <p className="font-display font-semibold text-foreground text-sm md:text-base leading-tight">
                 Nepal Election Portal
-              </p>
-              <p className="text-[10px] md:text-xs text-muted-foreground">
-                2082 BS • Accountability Lab Nepal
               </p>
             </div>
           </Link>

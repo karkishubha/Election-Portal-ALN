@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { BarChart3, Users, Shield, BookOpen, UserCheck } from "lucide-react";
+import { BarChart3, Users, Shield, UserCheck } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -55,12 +55,6 @@ const Election2026 = () => {
       label: "Election Monitoring",
       icon: Shield,
       description: "Monitoring and integrity-related content"
-    },
-    {
-      id: "education" as TabType,
-      label: "Voter Education",
-      icon: BookOpen,
-      description: "Educational materials for voters"
     }
   ];
 

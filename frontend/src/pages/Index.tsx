@@ -46,10 +46,6 @@ const Index = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <span className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 bg-accent/10 text-accent text-xs sm:text-sm font-medium rounded-full mb-4 sm:mb-6">
-                Nepal General Election 2082 BS
-              </span>
-              
               <h1 className="font-montserrat text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 sm:mb-8 flex items-baseline">
                 <span className="text-foreground">Our</span>
                 <span className="inline-block relative h-[1.2em] overflow-hidden ml-3 sm:ml-4">

@@ -317,6 +317,52 @@ const Election2026Candidates = () => {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Age Range Filter */}
+        <div className="mt-3 pt-3 border-t border-border">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-medium text-foreground">उमेर फिल्टर</span>
+            <span className="text-sm text-muted-foreground">(Age Range)</span>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={18}
+                max={100}
+                placeholder="न्यूनतम (Min)"
+                value={filters.ageMin ?? ""}
+                onChange={(e) => updateFilter("ageMin", e.target.value ? parseInt(e.target.value) : null)}
+                className="w-28 bg-background"
+              />
+              <span className="text-muted-foreground">-</span>
+              <Input
+                type="number"
+                min={18}
+                max={100}
+                placeholder="अधिकतम (Max)"
+                value={filters.ageMax ?? ""}
+                onChange={(e) => updateFilter("ageMax", e.target.value ? parseInt(e.target.value) : null)}
+                className="w-28 bg-background"
+              />
+              <span className="text-sm text-muted-foreground">वर्ष (years)</span>
+            </div>
+            {(filters.ageMin || filters.ageMax) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  updateFilter("ageMin", null);
+                  updateFilter("ageMax", null);
+                }}
+                className="text-muted-foreground hover:text-foreground h-8"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Clear
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Charts Grid */}

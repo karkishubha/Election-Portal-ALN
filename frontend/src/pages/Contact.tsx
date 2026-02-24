@@ -1,48 +1,9 @@
 import { Mail, MessageSquare } from "lucide-react";
-import { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import PageHeader from "@/components/shared/PageHeader";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    toast({
-      title: "Message Sent",
-      description: "Thank you for contacting us. We'll respond as soon as possible.",
-    });
-
-    setFormData({ name: "", email: "", message: "" });
-    setIsSubmitting(false);
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
   return (
     <Layout>
       <PageHeader
@@ -53,98 +14,46 @@ const Contact = () => {
 
       <section className="py-8 sm:py-12 lg:py-16">
         <div className="civic-container">
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
-            {/* Contact Info */}
+          <div className="max-w-2xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-card rounded-xl border border-border p-6 sm:p-8 md:p-10 text-center"
             >
-              <h2 className="font-display text-xl font-semibold mb-6">
-                Get in Touch
-              </h2>
-
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg bg-accent/10">
-                    <Mail className="w-5 h-5 text-accent" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-foreground mb-1">Email</h4>
-                    <a
-                      href="mailto:info@accountabilitylab.org"
-                      className="text-muted-foreground hover:text-accent transition-colors"
-                    >
-                      info@accountabilitylab.org
-                    </a>
-                  </div>
+              <div className="flex justify-center mb-6">
+                <div className="p-4 rounded-full bg-accent/10">
+                  <Mail className="w-8 h-8 text-accent" />
                 </div>
               </div>
 
-              <div className="mt-8 p-6 bg-muted/30 rounded-xl">
+              <h2 className="font-display text-2xl font-semibold mb-4">
+                Get in Touch
+              </h2>
+
+              <p className="text-muted-foreground mb-6 leading-relaxed">
+                For any inquiries, questions, or feedback about the Nepal Election Portal,
+                please feel free to reach out to us via email.
+              </p>
+
+              <div className="inline-flex items-center gap-3 px-6 py-4 bg-muted/30 rounded-lg mb-8">
+                <Mail className="w-5 h-5 text-accent" />
+                <a
+                  href="mailto:info@accountabilitylab.org"
+                  className="text-lg font-medium text-accent hover:underline"
+                >
+                  info@accountabilitylab.org
+                </a>
+              </div>
+
+              <div className="p-6 bg-muted/20 rounded-lg">
                 <h4 className="font-medium text-foreground mb-3">
                   Accountability Lab Nepal
                 </h4>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   We are committed to responding to all inquiries in a timely manner. 
                   For urgent matters related to election integrity or misinformation, 
-                  please include "URGENT" in your subject line.
+                  please include "URGENT" in your email subject line.
                 </p>
-              </div>
-            </motion.div>
-
-            {/* Contact Form */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <div className="bg-card rounded-xl border border-border p-4 sm:p-6 md:p-8">
-                <h2 className="font-display text-lg sm:text-xl font-semibold mb-4 sm:mb-6">
-                  Send a Message
-                </h2>
-
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      placeholder="Your name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea
-                      id="message"
-                      name="message"
-                      placeholder="Your message..."
-                      value={formData.message}
-                      onChange={handleChange}
-                      rows={5}
-                      required
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? "Sending..." : "Send Message"}
-                  </Button>
-                </form>
               </div>
             </motion.div>
           </div>

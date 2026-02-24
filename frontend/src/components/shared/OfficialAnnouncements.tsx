@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Bell, Clock, ExternalLink } from "lucide-react";
+import { Bell, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAnnouncements } from "@/hooks/useQueries";
 
@@ -65,19 +65,9 @@ const OfficialAnnouncements = () => {
             </span>
 
             {/* Title */}
-            <h4 className="font-semibold text-foreground text-sm mb-2 line-clamp-2">
+            <h4 className="font-semibold text-foreground text-sm mb-3 line-clamp-2">
               {announcement.title}
             </h4>
-
-            {/* Date */}
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
-              <Clock className="w-3 h-3" />
-              {new Date(announcement.date).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "numeric"
-              })}
-            </div>
 
             {/* Link */}
             <Button
@@ -103,7 +93,7 @@ const OfficialAnnouncements = () => {
           className="w-full text-xs"
           asChild
         >
-          <a href="https://election.gov.np" target="_blank" rel="noopener noreferrer">
+          <a href="https://election.gov.np/np/press-release" target="_blank" rel="noopener noreferrer">
             View All Announcements
           </a>
         </Button>

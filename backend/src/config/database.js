@@ -8,8 +8,9 @@
 const { Sequelize } = require('sequelize');
 const dns = require('dns');
 
-// Force Node.js to prefer IPv4 addresses globally
-dns.setDefaultResultOrder('ipv4first');
+// Prefer system DNS result order so IPv6-only DB hosts can resolve.
+// Set DB_DNS_RESULT_ORDER=ipv4first only if your environment needs IPv4.
+dns.setDefaultResultOrder(process.env.DB_DNS_RESULT_ORDER || 'verbatim');
 
 // Check if DATABASE_URL is provided (Supabase/Postgres connection string)
 const isDatabaseUrl = !!process.env.DATABASE_URL;

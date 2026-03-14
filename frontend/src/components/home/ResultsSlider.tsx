@@ -53,6 +53,7 @@ interface ArcSeatPoint {
 
 const TOTAL_SEATS = 275;
 const ARC_RING_LAYOUT = [56, 52, 47, 41, 35, 26, 18];
+const MOBILE_BREAKPOINT = 640;
 
 const PARTY_META: PartyMeta[] = [
   {
@@ -209,6 +210,19 @@ const ResultsSlider = () => {
   const [hoveredSeat, setHoveredSeat] = useState<{ partyKey: string; index: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < MOBILE_BREAKPOINT;
+  });
+
+  useEffect(() => {
+    const onResize = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    };
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     const fetchSeatData = async () => {
@@ -287,8 +301,8 @@ const ResultsSlider = () => {
   const arcSeatPoints = useMemo<ArcSeatPoint[]>(() => {
     const centerX = 500;
     const centerY = 430;
-    const outerRadius = 390;
-    const innerRadius = 150;
+    const outerRadius = isMobile ? 300 : 390;
+    const innerRadius = isMobile ? 95 : 150;
     const ringStep = (outerRadius - innerRadius) / (ARC_RING_LAYOUT.length - 1);
 
     const points: ArcSeatPoint[] = [];
@@ -315,7 +329,7 @@ const ResultsSlider = () => {
     });
 
     return points;
-  }, [allSeats]);
+  }, [allSeats, isMobile]);
 
   const totalDirect = partySeats.reduce((sum, party) => sum + party.direct, 0);
   const totalPR = partySeats.reduce((sum, party) => sum + party.proportional, 0);
@@ -348,28 +362,28 @@ const ResultsSlider = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="bg-primary rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 shadow-xl"
+      className="bg-primary rounded-xl sm:rounded-2xl p-3 sm:p-5 lg:p-6 shadow-xl"
     >
-      <div className="text-center mb-4">
+      <div className="text-center mb-3 sm:mb-4">
         <div className="flex items-center justify-center gap-2">
-          <Trophy className="w-5 h-5 text-yellow-400" />
-          <h3 className="text-primary-foreground/90 text-sm sm:text-base font-semibold uppercase tracking-wider">
+          <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+          <h3 className="text-primary-foreground/90 text-[11px] sm:text-base font-semibold uppercase tracking-wide sm:tracking-wider text-center">
             Election Results 2026
           </h3>
         </div>
       </div>
 
-      <div className="bg-primary-foreground/10 rounded-lg p-3 sm:p-4 space-y-3">
-        <div className="rounded-lg bg-primary-foreground/5 p-3">
+      <div className="bg-primary-foreground/10 rounded-lg p-2.5 sm:p-4 space-y-3">
+        <div className="rounded-lg bg-primary-foreground/5 p-2.5 sm:p-3">
           <div className="flex items-center justify-between mb-2">
             <p className="text-primary-foreground/85 text-sm font-medium">Seat Map</p>
             <span className="text-primary-foreground/70 text-xs">{TOTAL_SEATS} seats</span>
           </div>
 
-          <div className="w-full overflow-x-auto">
+          <div className="w-full overflow-hidden">
             <svg
               viewBox="0 0 1000 460"
-              className="w-full min-w-[560px] h-[220px] sm:h-[250px] lg:h-[275px]"
+              className="w-full h-[170px] sm:h-[250px] lg:h-[275px]"
               role="img"
               aria-label="House of Representatives seat map"
             >

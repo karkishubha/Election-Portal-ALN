@@ -38,17 +38,17 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background/80" />
         </div>
 
-        <div className="civic-container relative z-10 py-8 sm:py-12 lg:py-20">
-          <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 sm:gap-10 lg:gap-10 items-center">
+        <div className="civic-container relative z-10 py-6 sm:py-12 lg:py-20">
+          <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-6 sm:gap-10 lg:gap-10 items-center">
             {/* Text Content */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="font-montserrat text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 sm:mb-8 flex items-baseline">
+              <h1 className="font-montserrat text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-5 sm:mb-8 flex flex-wrap items-baseline gap-x-2 sm:gap-x-0">
                 <span className="text-foreground">Our</span>
-                <span className="inline-block relative h-[1.2em] overflow-hidden ml-3 sm:ml-4">
+                <span className="inline-block relative h-[1.2em] overflow-hidden ml-0 sm:ml-4">
                   <AnimatePresence mode="wait">
                     <motion.span
                       key={currentIndex}
@@ -64,19 +64,19 @@ const Index = () => {
                 </span>
               </h1>
               
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 sm:mb-8 max-w-xl">
+              <p className="text-sm sm:text-lg text-muted-foreground leading-relaxed mb-5 sm:mb-8 max-w-xl">
                 A neutral, non-partisan election information portal. 
                 Access comprehensive resources to make informed voting decisions in the 2026 election.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Button size="lg" className="w-full sm:w-auto" asChild>
+              <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4">
+                <Button size="lg" className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base" asChild>
                   <Link to="/election-2026">
                     Explore Election 2026
                     <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
+                <Button size="lg" variant="outline" className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base" asChild>
                   <Link to="/about">Learn More</Link>
                 </Button>
               </div>

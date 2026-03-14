@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { BarChart3, Users, Shield, UserCheck } from "lucide-react";
+import { BarChart3, Users, Shield, UserCheck, Trophy } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -10,17 +10,18 @@ import Election2026Candidates from "./election2026/Candidates";
 import Election2026Parties from "./election2026/Parties";
 import Election2026Integrity from "./election2026/Integrity";
 import Election2026VoterEducation from "./election2026/VoterEducation";
+import Election2026Results from "./election2026/Results";
 
-type TabType = "data" | "candidates" | "parties" | "integrity" | "education";
+type TabType = "results" | "data" | "candidates" | "parties" | "integrity" | "education";
 
 const Election2026 = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab") as TabType;
-  const [activeTab, setActiveTab] = useState<TabType>(tabFromUrl || "data");
+  const [activeTab, setActiveTab] = useState<TabType>(tabFromUrl || "results");
 
   // Update tab when URL changes
   useEffect(() => {
-    if (tabFromUrl && ["data", "candidates", "parties", "integrity", "education"].includes(tabFromUrl)) {
+    if (tabFromUrl && ["results", "data", "candidates", "parties", "integrity", "education"].includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [tabFromUrl]);
@@ -32,6 +33,12 @@ const Election2026 = () => {
   };
 
   const tabs = [
+    {
+      id: "results" as TabType,
+      label: "Results",
+      icon: Trophy,
+      description: "Live election results - FPTP and PR"
+    },
     {
       id: "data" as TabType,
       label: "Insights",
@@ -103,17 +110,20 @@ const Election2026 = () => {
 
       {/* Tab Content */}
       <section className="py-8 sm:py-12 lg:py-20 bg-background">
-        <div className="civic-container grid lg:grid-cols-3 gap-6 lg:gap-8">
-          <div className="lg:col-span-2">
+        <div className={`civic-container ${activeTab !== "results" ? "grid lg:grid-cols-3 gap-6 lg:gap-8" : ""}`}>
+          <div className={activeTab !== "results" ? "lg:col-span-2" : ""}>
+            {activeTab === "results" && <Election2026Results />}
             {activeTab === "data" && <Election2026Data />}
             {activeTab === "candidates" && <Election2026Candidates />}
             {activeTab === "parties" && <Election2026Parties />}
             {activeTab === "integrity" && <Election2026Integrity />}
             {activeTab === "education" && <Election2026VoterEducation />}
           </div>
-          <div className="lg:block">
-            <OfficialAnnouncements />
-          </div>
+          {activeTab !== "results" && (
+            <div className="lg:block">
+              <OfficialAnnouncements />
+            </div>
+          )}
         </div>
       </section>
     </Layout>

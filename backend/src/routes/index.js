@@ -9,6 +9,7 @@ const authRoutes = require('./authRoutes');
 const uploadRoutes = require('./uploadRoutes');
 const statsRoutes = require('./statsRoutes');
 const candidatesRoutes = require('./candidatesRoutes');
+const resultsRoutes = require('./resultsRoutes');
 
 // Public and Admin routes separated
 const voterEducationRoutes = require('./voterEducationRoutes');
@@ -36,6 +37,7 @@ const explainersRoutes = require('./explainersRoutes');
 const { adminRouter: explainersAdminRoutes } = require('./explainersRoutes');
 const officialAnnouncementsRoutes = require('./officialAnnouncementsRoutes');
 const { adminRouter: officialAnnouncementsAdminRoutes } = require('./officialAnnouncementsRoutes');
+const geoRoutes = require('./geoRoutes');
 
 /**
  * Register all routes on the Express app
@@ -49,6 +51,7 @@ const registerRoutes = (app) => {
   // === PUBLIC ROUTES (read-only) ===
   app.use('/api/stats', statsRoutes);
   app.use('/api/candidates', candidatesRoutes);
+  app.use('/api/results', resultsRoutes);
   app.use('/api/voter-education', voterEducationRoutes);
   app.use('/api/election-integrity', electionIntegrityRoutes);
   app.use('/api/violations', violationsRoutes);
@@ -59,6 +62,7 @@ const registerRoutes = (app) => {
   app.use('/api/announcements', officialAnnouncementsRoutes);
   app.use('/api/newsletters', newsletterRoutes);
   app.use('/api/parties', politicalPartyRoutes);
+  app.use('/api/geo', geoRoutes); // ECN GeoJSON proxy
 
   // === ADMIN ROUTES (protected) ===
   app.use('/api/admin/voter-education', voterEducationAdminRoutes);

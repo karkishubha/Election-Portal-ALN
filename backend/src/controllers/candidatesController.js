@@ -1,67 +1,59 @@
 /**
  * Candidates Controller
- * Proxy for Election Commission Candidates API
+ * Serves election candidates data from local JSON file
+ * Data source: Election Commission of Nepal (result.election.gov.np)
  */
 
-const https = require('https');
+const path = require('path');
+const fs = require('fs');
 
-const CANDIDATES_API_URL = 'https://result.election.gov.np/JSONFiles/ElectionResultCentral2082.txt';
+// Load candidates data from local JSON file
+const CANDIDATES_FILE = path.join(__dirname, '../data/candidates.json');
+let candidatesCache = null;
 
 /**
- * Fetch and proxy candidates data from Election Commission
+ * Load candidates from local JSON file (cached)
+ */
+const loadCandidates = () => {
+  if (candidatesCache) {
+    return candidatesCache;
+  }
+  
+  try {
+    const data = fs.readFileSync(CANDIDATES_FILE, 'utf8');
+    candidatesCache = JSON.parse(data);
+    console.log(`✅ Loaded ${candidatesCache.length} candidates from local file`);
+    return candidatesCache;
+  } catch (error) {
+    console.error('❌ Error loading candidates file:', error.message);
+    return [];
+  }
+};
+
+/**
+ * Get all candidates data
  * GET /api/candidates
  */
 const getCandidates = async (req, res) => {
   try {
-    console.log('📥 Fetching candidates data from Election Commission...');
+    const candidates = loadCandidates();
     
-    // Fetch data from Election Commission API
-    https.get(CANDIDATES_API_URL, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
-    }, (apiResponse) => {
-      let data = '';
-
-      // Collect data chunks
-      apiResponse.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      // When complete, send to client
-      apiResponse.on('end', () => {
-        try {
-          console.log('✅ Received data, parsing JSON...');
-          const candidates = JSON.parse(data);
-          console.log(`✅ Successfully parsed ${candidates.length} candidates`);
-          
-          res.status(200).json({
-            success: true,
-            message: 'Candidates data retrieved successfully',
-            count: candidates.length,
-            data: candidates,
-            source: 'Election Commission of Nepal',
-            lastFetched: new Date().toISOString()
-          });
-        } catch (parseError) {
-          console.error('❌ Error parsing candidates data:', parseError);
-          res.status(500).json({
-            success: false,
-            message: 'Failed to parse candidates data',
-            error: parseError.message
-          });
-        }
-      });
-
-    }).on('error', (error) => {
-      console.error('❌ Error fetching candidates data:', error);
-      res.status(500).json({
+    if (candidates.length === 0) {
+      return res.status(500).json({
         success: false,
-        message: 'Failed to fetch candidates data from Election Commission',
-        error: error.message
+        message: 'Candidates data not available',
+        error: 'Data file missing or corrupted'
       });
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Candidates data retrieved successfully',
+      count: candidates.length,
+      data: candidates,
+      source: 'Election Commission of Nepal',
+      lastUpdated: '2026-03-10'
     });
-
   } catch (error) {
     console.error('❌ Candidates Controller Error:', error);
     res.status(500).json({

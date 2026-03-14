@@ -52,7 +52,7 @@ export function CandidateDetail({
     {
       icon: Calendar,
       label: "उमेर (Age)",
-      value: `${candidate.AGE_YR} वर्ष`,
+      value: `${candidate.Age || candidate.AGE_YR} वर्ष`,
     },
     {
       icon: User,

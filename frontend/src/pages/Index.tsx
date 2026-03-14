@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout/Layout";
-import CountdownTimer from "@/components/home/CountdownTimer";
+import ResultsSlider from "@/components/home/ResultsSlider";
 import QuickAccessCards from "@/components/home/QuickAccessCards";
 import { usePublicStats } from "@/hooks/useQueries";
 import bgImage from "@/assets/bg.jpeg";
@@ -39,7 +39,7 @@ const Index = () => {
         </div>
 
         <div className="civic-container relative z-10 py-8 sm:py-12 lg:py-20">
-          <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center">
+          <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 sm:gap-10 lg:gap-10 items-center">
             {/* Text Content */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -82,9 +82,9 @@ const Index = () => {
               </div>
             </motion.div>
 
-            {/* Countdown Timer */}
-            <div className="lg:pl-8">
-              <CountdownTimer />
+            {/* Results Slider */}
+            <div className="lg:pl-2">
+              <ResultsSlider />
             </div>
           </div>
         </div>

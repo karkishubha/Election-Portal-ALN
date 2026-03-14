@@ -1,33 +1,39 @@
 // Types for Nepal Election Candidates
-//Data source: https://result.election.gov.np/JSONFiles/ElectionResultCentral2082.txt
+// Data source: Election Commission of Nepal (result.election.gov.np)
 
 export interface Candidate {
   CandidateID: number;
   CandidateName: string;
-  AGE_YR: number;
+  Age: number;  // New field name
+  AGE_YR?: number; // Legacy support
   Gender: string;
   PoliticalPartyName: string;
   SymbolName: string;
+  SymbolID?: number;
   DistrictName: string;
+  DistrictCd?: number;
   StateName: string;
+  State?: number;
+  SCConstID?: string | number; // Can be string or number
   QUALIFICATION: string;
   NAMEOFINST?: string;
   EXPERIENCE?: string;
   ADDRESS?: string;
-  FatherName?: string;
-  SpouseName?: string;
-  SYMBOLCODE?: number;
-  CTZDIST?: string;
-  STATE_ID?: number;
-  SCConstID?: number;
-  ConstName?: number;
-  TotalVoteReceived?: number;
-  R?: number;
   FATHER_NAME?: string;
   SPOUCE_NAME?: string;
+  CTZDIST?: string;
+  DOB?: string;
+  TotalVoteReceived?: number;
+  Rank?: number;
+  Remarks?: string; // "Elected" or null
+  SerialNo?: number;
+  ElectionPost?: string;
+  CastedVote?: number;
+  TotalVoters?: number;
+  PartyID?: number;
+  CenterConstID?: string;
+  Samudaya?: string;
   OTHERDETAILS?: string;
-  E_STATUS?: string;
-  DOB?: number;
 }
 
 export interface FilterState {
@@ -71,13 +77,15 @@ export const PROVINCES: Record<string, string> = {
 
 // Color mapping for major parties
 export const PARTY_COLORS: Record<string, string> = {
-  "नेपाली काँग्रेस": "hsl(215, 55%, 35%)",
-  "नेपाल कम्युनिष्ट पार्टी (एकीकृत मार्क्सवादी लेनिनवादी)": "hsl(350, 55%, 50%)",
-  "राष्ट्रिय स्वतन्त्र पार्टी": "hsl(35, 70%, 50%)",
-  "राष्ट्रिय प्रजातन्त्र पार्टी": "hsl(270, 40%, 55%)",
-  "नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)": "hsl(0, 65%, 50%)",
-  "जनता समाजवादी पार्टी, नेपाल": "hsl(120, 45%, 45%)",
-  "स्वतन्त्र": "hsl(200, 15%, 50%)",
+  "राष्ट्रिय स्वतन्त्र पार्टी": "#00BFFF", // Sky Blue (RSP)
+  "नेपाली काँग्रेस": "#008000", // Green (Congress)
+  "नेपाल कम्युनिष्ट पार्टी (एकीकृत मार्क्सवादी लेनिनवादी)": "#8B0000", // Maroon (UML)
+  "नेपाली कम्युनिष्ट पार्टी": "#FF0000", // Red (NCP)
+  "श्रम संस्कृति पार्टी": "#A52A2A", // Brown (SSP)
+  "राष्ट्रिय प्रजातन्त्र पार्टी": "#FFFF00", // Yellow (RPP)
+  "नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)": "#dc2626", // Red (Maoist)
+  "जनता समाजवादी पार्टी, नेपाल": "#059669", // Teal (JSP)
+  "स्वतन्त्र": "#6b7280", // Gray (Independent)
 };
 
 // Qualification levels

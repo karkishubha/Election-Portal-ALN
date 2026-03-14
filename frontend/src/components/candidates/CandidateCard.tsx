@@ -86,7 +86,7 @@ export function CandidateCard({ candidate, onClick, className }: CandidateCardPr
         </div>
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <Calendar className="h-3.5 w-3.5 shrink-0" />
-          <span>{candidate.AGE_YR} वर्ष</span>
+          <span>{candidate.Age || candidate.AGE_YR} वर्ष</span>
         </div>
         <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
           <GraduationCap className="h-3.5 w-3.5 shrink-0" />

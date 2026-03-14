@@ -1,23 +1,17 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Candidate, FilterState, AggregatedStats, AGE_GROUPS } from '@/types/candidates';
 
-// Direct URL to Election Commission data
-const CANDIDATES_URL = 'https://result.election.gov.np/JSONFiles/ElectionResultCentral2082.txt';
+// Backend API URL for candidates data
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const CANDIDATES_API_URL = `${API_BASE_URL}/candidates`;
 
-// Multiple CORS proxies - will race all at once for fastest response
-const CORS_PROXIES = [
-  'https://api.codetabs.com/v1/proxy?quest=',
-  'https://api.allorigins.win/raw?url=',
-  'https://corsproxy.io/?',
-];
-
-// Timeout for fetch requests (10 seconds)
-const FETCH_TIMEOUT_MS = 10000;
+// Timeout for fetch requests (30 seconds - file is large)
+const FETCH_TIMEOUT_MS = 30000;
 
 // Cache configuration
-const CACHE_KEY = 'nepal_election_candidates_2082';
-const CACHE_EXPIRY_KEY = 'nepal_election_candidates_2082_expiry';
-const CACHE_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const CACHE_KEY = 'nepal_election_candidates_2082_results';
+const CACHE_EXPIRY_KEY = 'nepal_election_candidates_2082_results_expiry';
+const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours (results are final)
 
 // Education group mapping
 const educationGroupKeywords: Record<string, string[]> = {
@@ -84,8 +78,7 @@ function setCachedCandidates(candidates: Candidate[]): void {
 }
 
 /**
- * Fetch candidates data - uses cache if available, otherwise fetches from API
- * Uses parallel proxy racing for faster first fetch
+ * Fetch candidates data - uses cache if available, otherwise fetches from backend API
  */
 export const useCandidatesData = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -93,27 +86,6 @@ export const useCandidatesData = () => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const fetchWithProxy = async (proxyUrl: string): Promise<Candidate[]> => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-      
-      try {
-        const response = await fetch(
-          `${proxyUrl}${encodeURIComponent(CANDIDATES_URL)}`,
-          { signal: controller.signal }
-        );
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-          throw new Error(`Proxy ${proxyUrl} failed with status ${response.status}`);
-        }
-        return response.json();
-      } catch (err) {
-        clearTimeout(timeoutId);
-        throw err;
-      }
-    };
-
     const fetchCandidates = async () => {
       try {
         setIsLoading(true);
@@ -128,41 +100,39 @@ export const useCandidatesData = () => {
           return;
         }
         
-        // No cache - race all proxies in parallel for fastest response!
-        console.log('🔄 Fetching from API (racing all proxies)...');
+        // Fetch from backend API
+        console.log('🔄 Fetching from backend API...');
         const startTime = Date.now();
         
-        // Create a promise that resolves with the first successful response
-        const raceProxies = (): Promise<Candidate[]> => {
-          return new Promise((resolve, reject) => {
-            let completedCount = 0;
-            const errors: Error[] = [];
-            
-            CORS_PROXIES.forEach((proxy) => {
-              fetchWithProxy(proxy)
-                .then((data) => {
-                  console.log(`✅ Success with ${proxy} in ${Date.now() - startTime}ms`);
-                  resolve(data);
-                })
-                .catch((err) => {
-                  console.warn(`❌ Proxy failed: ${proxy}`, err.message);
-                  errors.push(err);
-                  completedCount++;
-                  
-                  // Only reject if ALL proxies failed
-                  if (completedCount === CORS_PROXIES.length) {
-                    reject(new Error(`All proxies failed: ${errors.map(e => e.message).join(', ')}`));
-                  }
-                });
-            });
-          });
-        };
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
         
-        const data = await raceProxies();
+        const response = await fetch(CANDIDATES_API_URL, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success || !result.data) {
+          throw new Error(result.message || 'Failed to fetch candidates');
+        }
+        
+        const data = result.data;
         console.log(`📊 Loaded ${data.length} candidates in ${Date.now() - startTime}ms`);
         
-        setCandidates(data);
-        setCachedCandidates(data); // Save to cache for next time
+        // Normalize data - map new field names to expected ones
+        const normalizedData = data.map((c: Candidate) => ({
+          ...c,
+          AGE_YR: c.Age || c.AGE_YR, // Support both old and new field names
+        }));
+        
+        setCandidates(normalizedData);
+        setCachedCandidates(normalizedData); // Save to cache
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'));
@@ -195,10 +165,13 @@ export const useFilteredCandidates = (
       if (filters.qualification && getEducationGroup(candidate.QUALIFICATION) !== filters.qualification) return false;
       
       if (filters.gender && candidate.Gender !== filters.gender) return false;
-      if (filters.constituency && candidate.SCConstID !== filters.constituency) return false;
       
-      if (filters.ageMin && candidate.AGE_YR < filters.ageMin) return false;
-      if (filters.ageMax && candidate.AGE_YR > filters.ageMax) return false;
+      // SCConstID can be string or number, so compare as strings
+      if (filters.constituency && String(candidate.SCConstID) !== String(filters.constituency)) return false;
+      
+      const age = candidate.Age || candidate.AGE_YR || 0;
+      if (filters.ageMin && age < filters.ageMin) return false;
+      if (filters.ageMax && age > filters.ageMax) return false;
       
       if (filters.searchText) {
         const search = filters.searchText.toLowerCase();
@@ -257,8 +230,9 @@ export const useAggregatedStats = (candidates: Candidate[]): AggregatedStats => 
         (stats.byQualification[eduGroup] || 0) + 1;
 
       // Count by age group
+      const age = candidate.Age || candidate.AGE_YR || 0;
       const ageGroup = AGE_GROUPS.find(
-        g => candidate.AGE_YR >= g.min && candidate.AGE_YR <= g.max
+        g => age >= g.min && age <= g.max
       );
       if (ageGroup) {
         stats.byAgeGroup[ageGroup.label]++;
@@ -324,7 +298,7 @@ export const useFilterOptions = (
           .filter(c => !filters.district || c.DistrictName === filters.district)
           .map(c => c.SCConstID)
       )
-    ).filter(Boolean).sort((a, b) => (a || 0) - (b || 0)) as number[];
+    ).filter(Boolean).map(Number).sort((a, b) => a - b);
 
     const genders = Array.from(new Set(candidates.map(c => c.Gender))).filter(Boolean);
 

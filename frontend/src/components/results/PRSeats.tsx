@@ -41,6 +41,11 @@ const formatNumber = (num: number): string => {
   return new Intl.NumberFormat('en-NP').format(num);
 };
 
+const getSymbolUrl = (symbolId?: number) => {
+  if (!symbolId) return null;
+  return `https://result.election.gov.np/Images/symbol-hor-pa/${symbolId}.jpg`;
+};
+
 const PRSeats = ({ data, loading }: PRSeatsProps) => {
   if (loading || !data) {
     return (
@@ -176,10 +181,20 @@ const PRSeats = ({ data, loading }: PRSeatsProps) => {
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <div 
-                      className="w-3 h-3 rounded-full shrink-0"
-                      style={{ backgroundColor: getPartyColor(party.partyName) }}
-                    />
+                    <div className="h-9 w-9 shrink-0 rounded-md border bg-white p-1 flex items-center justify-center">
+                      {getSymbolUrl(party.symbolId) ? (
+                        <img
+                          src={getSymbolUrl(party.symbolId) || undefined}
+                          alt={party.partyName}
+                          className="h-full w-full object-contain"
+                        />
+                      ) : (
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: getPartyColor(party.partyName) }}
+                        />
+                      )}
+                    </div>
                     <span className="font-medium truncate text-sm" title={party.partyName}>
                       {party.partyName}
                     </span>
@@ -230,11 +245,27 @@ const PRSeats = ({ data, loading }: PRSeatsProps) => {
               {nonQualifyingParties.slice(0, 20).map((party) => (
                 <div
                   key={party.partyName}
-                  className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm"
+                  className="flex items-center justify-between gap-3 p-2 bg-muted/30 rounded text-sm"
                 >
-                  <span className="truncate flex-1 text-muted-foreground" title={party.partyName}>
-                    {party.partyName}
-                  </span>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="h-8 w-8 shrink-0 rounded-md border bg-white p-1 flex items-center justify-center">
+                      {getSymbolUrl(party.symbolId) ? (
+                        <img
+                          src={getSymbolUrl(party.symbolId) || undefined}
+                          alt={party.partyName}
+                          className="h-full w-full object-contain"
+                        />
+                      ) : (
+                        <div
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ backgroundColor: getPartyColor(party.partyName) }}
+                        />
+                      )}
+                    </div>
+                    <span className="truncate text-muted-foreground" title={party.partyName}>
+                      {party.partyName}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-3 shrink-0 text-xs">
                     <span>{formatNumber(party.votes)}</span>
                     <span className="text-red-500">{party.percentage}%</span>
